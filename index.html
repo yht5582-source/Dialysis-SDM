@@ -241,6 +241,9 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
 .pw+.pw{margin-top:14px}
 .pw h4{display:flex;justify-content:space-between;gap:8px;margin-bottom:4px;color:var(--accent)}
 .recp{font-size:18px;font-weight:700;font-family:var(--f-display)}
+.sc .qrow{grid-template-columns:minmax(0,1fr);}
+.sc .seg button{min-width:0;padding:5px 7px}
+.sc .stem{font-size:13px;color:var(--ink-2);background:var(--paper);border-radius:7px;padding:8px 10px;margin-bottom:6px}
 .pfaq{display:grid;gap:8px}
 .pfaq details{border:1px solid var(--line-2);border-radius:8px;padding:8px 12px;background:var(--panel)}
 .pfaq summary{cursor:pointer;font-weight:500}
@@ -252,7 +255,7 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
   <header class="masthead">
     <div class="eyebrow">Kidney failure · shared decision-making, conservative care &amp; advance care planning</div>
     <h1>末期腎臟病共享決策</h1>
-    <p class="sub">給腎臟科團隊和病人、家屬一起使用。先確認病人在哪個階段、預後如何，再逐一檢視院內血液透析、腹膜透析、居家血液透析、腎臟移植、腎臟保守治療與停止透析各自是否可行；接著請病人標出自己在意的事、確認理解並記錄選擇，系統結合醫療可行性與病人價值提出綜合建議，導引到該模式的執行路徑；同時規劃預立醫療照護諮商（ACP）、預立醫療決定（AD）與 DNR。預後使用意外問題、KPS、修正版 Charlson 與 REIN 等已驗證工具，決策準備度用 SURE 測驗。最後可以一鍵複製 SDM 紀錄貼到病歷。</p>
+    <p class="sub">給腎臟科團隊和病人、家屬一起使用。先確認病人在哪個階段、預後如何，再逐一檢視院內血液透析、腹膜透析、居家血液透析、腎臟移植、腎臟保守治療與停止透析各自是否可行；接著請病人標出自己在意的事、確認理解並記錄選擇，系統結合醫療可行性與病人價值提出綜合建議，導引到該模式的執行路徑；同時規劃預立醫療照護諮商（ACP）、預立醫療決定（AD）與 DNR。預後使用意外問題、KPS、修正版 Charlson 與 REIN 等已驗證工具，決策準備度用 SURE 測驗；SDM 成效以決策衝突量表、決策準備量表與決策後悔量表評估。最後可以一鍵複製 SDM 紀錄貼到病歷。</p>
     <div class="src"><span>KDIGO CKD 2024</span><span>KDIGO 移植候選人 2020</span><span>RPA 透析開始與停止 SDM 指引 2010</span><span>KDIGO 腎臟支持照護共識 2015</span><span>病人自主權利法</span><span>安寧緩和醫療條例</span><span>健保 PD 推動計畫（114.05.21）</span><span>台灣腎病年報（2022 年資料）</span></div>
   </header>
 
@@ -262,10 +265,11 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
     <button class="tab" role="tab" id="tab-vals" aria-controls="vals" data-t="vals"><b>3</b>價值澄清</button>
     <button class="tab" role="tab" id="tab-quiz" aria-controls="quiz" data-t="quiz"><b>4</b>理解確認</button>
     <button class="tab" role="tab" id="tab-plan" aria-controls="plan" data-t="plan"><b>5</b>綜合建議與路徑</button>
-    <button class="tab" role="tab" id="tab-acp" aria-controls="acp" data-t="acp"><b>6</b>ACP・AD・DNR</button>
-    <button class="tab" role="tab" id="tab-algo" aria-controls="algo" data-t="algo"><b>7</b>流程總覽</button>
-    <button class="tab" role="tab" id="tab-cases" aria-controls="cases" data-t="cases"><b>8</b>示例病例</button>
-    <button class="tab" role="tab" id="tab-ref" aria-controls="ref" data-t="ref"><b>9</b>參考文獻與信效度</button>
+    <button class="tab" role="tab" id="tab-out" aria-controls="out" data-t="out"><b>6</b>成效評估</button>
+    <button class="tab" role="tab" id="tab-acp" aria-controls="acp" data-t="acp"><b>7</b>ACP・AD・DNR</button>
+    <button class="tab" role="tab" id="tab-algo" aria-controls="algo" data-t="algo"><b>8</b>流程總覽</button>
+    <button class="tab" role="tab" id="tab-cases" aria-controls="cases" data-t="cases"><b>9</b>示例病例</button>
+    <button class="tab" role="tab" id="tab-ref" aria-controls="ref" data-t="ref"><b>10</b>參考文獻與信效度</button>
   </nav>
 
   <div class="status" id="status" aria-live="polite"></div>
@@ -452,7 +456,30 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
     </div>
   </section>
 
-  <!-- 6 ACP / AD / DNR -->
+  <!-- 6 outcome measures -->
+  <section class="pane" id="out" role="tabpanel" aria-labelledby="tab-out" hidden>
+    <div class="two">
+      <div class="stack">
+        <div class="card">
+          <h3>SDM 成效評估 <span class="pill ev" id="outTag"></span></h3>
+          <p class="small muted">由病人自己作答（可由家屬或護理師唸題）。三份量表都是 OHRI 公布的中文版，題目照原文，只把指導語改成這次的決定。</p>
+          <ul class="plain small muted">
+            <li><b>DCS</b>：討論前做一次當基準，做決定時再做一次；分數下降代表 SDM 降低了決策衝突。</li>
+            <li><b>PrepDM</b>：SDM 討論結束後做一次。</li>
+            <li><b>DRS</b>：決定後 3–6 個月回診時做；可單獨開新頁面填寫，不需要先前的資料。</li>
+          </ul>
+          <div class="grid2" style="margin-top:10px">
+            <label class="field"><span class="flabel">個案代碼（選填，勿用病歷號或姓名）</span><input type="text" id="caseCode" maxlength="20" style="font:inherit;font-size:14px;border:1px solid var(--line);border-radius:7px;padding:6px 8px;background:var(--paper);color:var(--ink)"><span class="hint">自訂的去識別化代碼，方便在 Excel 對照同一位病人的前後分數</span></label>
+            <div class="field"><span class="flabel">累積成效資料</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm primary" type="button" id="copyRow">複製成效分數（一列）</button><button class="btn sm" type="button" id="copyHead">複製欄位標題</button></span><span class="hint">以 Tab 分隔，可直接貼到 Excel；第一次先貼欄位標題</span></div>
+          </div>
+        </div>
+        <div class="card"><h3>結果摘要</h3><div id="outSum"></div></div>
+      </div>
+      <div class="stack" id="outForms"></div>
+    </div>
+  </section>
+
+  <!-- 7 ACP / AD / DNR -->
   <section class="pane" id="acp" role="tabpanel" aria-labelledby="tab-acp" hidden>
     <div class="stack" id="acpPane"></div>
   </section>
@@ -1083,8 +1110,67 @@ function evaluate(s) {
   const Fz = s.stage ? fit(s, P, O) : null;
   const rec = recommend(s, d, P, O, Fz);
   const plan = pathway(s, d, rec);
-  return { d, P, timing: timing(s, d, P), opts: O, fit: Fz, quiz: Q, rec, plan, acp: s.stage ? acp(s, d, P) : [], asks: asks(s, d, P), pending: (s._pending || []).slice(), path: path(s, d, P, Q, rec, plan), nodes: nodes(s, d, P) };
+  return { d, P, timing: timing(s, d, P), opts: O, fit: Fz, quiz: Q, rec, plan, out: outcomes(s), acp: s.stage ? acp(s, d, P) : [], asks: asks(s, d, P), pending: (s._pending || []).slice(), path: path(s, d, P, Q, rec, plan), nodes: nodes(s, d, P) };
 }
+
+/* ---------- outcome measures (OHRI; Chinese item wording verbatim, stems adapted to this decision as the licence allows) ---------- */
+const SCALES = {
+  dcs: {
+    t: '決策衝突量表（DCS，16 題問句版）',
+    cite: "AM O'Connor, Decisional Conflict Scale © 1993 [updated 2005, Chinese translation 2006]",
+    opts: [[0, '是'], [1, '大概是'], [2, '不肯定'], [3, '大概不是'], [4, '不是']],
+    items: ['你是否知道你有哪些可選擇的方案？', '你是否知道每個選擇方案的好處？', '你是否知道每個選擇方案的風險及副作用？', '你是否清楚哪些好處對你最緊要？', '你是否清楚哪些風險及副作用對你最緊要？', '你是否清楚哪些(好處還是風險、副作用)對你比較重要？', '當作出這個選擇時，你是否有來自其他人足夠的支持？', '你是否在不受其他人的壓力下作出這個選擇？', '當作出這個選擇時，你是否有足夠的建議？', '你是否清楚什麼選擇對你是最好的？', '你是否肯定自己作出什麼選擇？', '這個決定對你來說是否容易做？', '你是否覺得你是在充分被告知所有相關資訊後才作的決定？', '你的決定是否表示了什麼對你是重要的？', '你是否預期你會堅持你的決定？', '你是否滿意你的決定？'],
+    sub: [['資訊', [1, 2, 3]], ['價值清晰', [4, 5, 6]], ['支持', [7, 8, 9]], ['不確定', [10, 11, 12]], ['有效決策', [13, 14, 15, 16]]]
+  },
+  prep: {
+    t: '決策準備量表（PrepDM，10 題）',
+    cite: "ID Graham & AM O'Connor, Preparation for Decision Making Scale © 1995, revised 2005（中文版 OHRI 公布）",
+    opts: [[1, '完全沒有'], [2, '一點'], [3, '有些'], [4, '相當多'], [5, '非常多']],
+    items: ['幫助你認清到你必須做出決定?', '讓你準備好做出一個更好的決定?', '幫助你思考每個選項的優點及缺點?', '幫助你思考哪些優點及缺點是最重要的?', '幫助你知道這個決定取決於哪些事情對你最重要?', '幫助你組織你自己對這些決定的想法?', '幫助你思考在這項決定中你能參與到什麼程度?', '幫助你辨識你想詢問醫生的問題?', '讓你準備好跟醫生講你最在意的是什麼?', '讓你準備和醫生進行後續的追蹤?']
+  },
+  drs: {
+    t: '決策後悔量表（DRS，5 題）',
+    cite: "AM O'Connor, Decision Regret Scale © 1996 [Chinese translation 2006]",
+    opts: [[1, '非常同意'], [2, '同意'], [3, '非同意也非不同意'], [4, '不同意'], [5, '非常不同意']],
+    items: ['對我來說，它是正確的決定。', '我後悔作出這樣的選擇。', '如果我必須再做一次決定，我仍會作同樣的選擇。', '這個選擇對我造成很多害處。', '這個決定是明智的。'],
+    rev: [2, 4]
+  }
+};
+const OUT_SETS = [['dcsPre', 'dcs', '討論前（基準）'], ['dcsPost', 'dcs', '做決定時'], ['prep', 'prep', 'SDM 討論後'], ['drs', 'drs', '決定後 3–6 個月追蹤']];
+const r1o = x => Math.round(x * 10) / 10;
+function scoreScale(kind, ans) {
+  const S_ = SCALES[kind];
+  const a = (ans || []).slice(0, S_.items.length);
+  const n = a.filter(v => v !== null && v !== undefined).length;
+  const res = { n, of: S_.items.length, total: null };
+  if (n < S_.items.length) return res;
+  if (kind === 'dcs') {
+    res.total = r1o(a.reduce((x, v) => x + v, 0) / 16 * 25);
+    res.sub = S_.sub.map(([l, ids]) => [l, r1o(ids.reduce((x, i) => x + a[i - 1], 0) / ids.length * 25)]);
+    res.band = res.total < 25 ? 'low' : res.total > 37.5 ? 'high' : 'mid';
+  } else if (kind === 'prep') {
+    res.total = r1o((a.reduce((x, v) => x + v, 0) / 10 - 1) * 25);
+  } else {
+    // items 2 and 4 reverse-coded so higher = more regret; each item (x−1)×25, then averaged
+    const items = a.map((v, i) => (S_.rev.includes(i + 1) ? 6 - v : v) - 1).map(v => v * 25);
+    res.total = r1o(items.reduce((x, v) => x + v, 0) / 5);
+  }
+  return res;
+}
+function outcomes(s) {
+  const o = s._o || {};
+  const R_ = {};
+  OUT_SETS.forEach(([k, kind]) => { R_[k] = scoreScale(kind, o[k]); });
+  if (R_.dcsPre.total !== null && R_.dcsPost.total !== null) R_.dcsDelta = r1o(R_.dcsPost.total - R_.dcsPre.total);
+  if (s._decT) { const d = new Date(s._decT); const f = n => { const x = new Date(d); x.setMonth(x.getMonth() + n); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; }; R_.drsDue = [f(3), f(6)]; }
+  return R_;
+}
+function outcomeRow(s, date) {
+  const O_ = outcomes(s), sr = sureScore(s);
+  const v = x => x === null || x === undefined ? '' : x;
+  return [date || today(), v(s._code), s.stage ? LAB('stage', s.stage) : '', s.choice ? LAB('choice', s.choice) : '', sr.done ? sr.yes : '', v(O_.dcsPre.total), v(O_.dcsPost.total), v(O_.dcsDelta), v(O_.prep.total), v(O_.drs.total)].join('\t');
+}
+const OUT_HEAD = ['日期', '個案代碼', '階段', '病人選擇', 'SURE', 'DCS 討論前', 'DCS 做決定時', 'DCS 變化', 'PrepDM', 'DRS'].join('\t');
 
 function summary(s, date) {
   const R = evaluate(s), d = R.d, P = R.P;
@@ -1116,12 +1202,19 @@ function summary(s, date) {
   if (R.rec.sure.done) L.push(`SURE：${R.rec.sure.yes}/4${R.rec.sure.yes < 4 ? '（有決策衝突）' : ''}`);
   if (R.rec.primary) L.push(`綜合建議：${{ ok: '依病人選擇', eval: '依病人選擇，待評估', suggest: '建議（待病人確認）', conflict: '病人選擇不建議，替代為' }[R.rec.status]}「${R.rec.primary.t}」${R.rec.bridge ? `；銜接「${R.rec.bridge.t}」` : ''}${R.rec.alt ? `；備案「${R.rec.alt.t}」` : ''}`);
   R.plan.forEach(p => { const left = p.steps.filter(x => !x.done).map(x => x.t.split('：')[0]); L.push(`${p.role}（${p.t}）：已完成 ${p.n}/${p.steps.length}${left.length ? '；待辦：' + left.join('、') : ''}`); });
+  const OC = outcomes(s), oc = [];
+  if (OC.dcsPre.total !== null) oc.push(`DCS 討論前 ${OC.dcsPre.total}`);
+  if (OC.dcsPost.total !== null) oc.push(`DCS 做決定時 ${OC.dcsPost.total}${OC.dcsDelta !== undefined ? `（變化 ${OC.dcsDelta > 0 ? '+' : ''}${OC.dcsDelta}）` : ''}`);
+  if (OC.prep.total !== null) oc.push(`PrepDM ${OC.prep.total}`);
+  if (OC.drs.total !== null) oc.push(`DRS ${OC.drs.total}`);
+  if (oc.length) L.push('成效評估：' + oc.join('；'));
+  if (OC.drsDue && OC.drs.total === null) L.push(`決策後悔追蹤：建議 ${OC.drsDue[0]}（3 個月）或 ${OC.drsDue[1]}（6 個月）`);
   const todo = R.acp.filter(i => i.c !== 'stop').map(i => i.t);
   if (todo.length) L.push('後續：' + todo.join('；'));
   return L.join('\n');
 }
 
-const api = { TH, LAYERS, F, OPT, VALS, FIT, QUIZ, COMORB, TXCI, ABD, SURE, REIN, PATHS, charlson, rein, filled, evaluate, summary, today };
+const api = { TH, LAYERS, F, OPT, VALS, FIT, QUIZ, COMORB, TXCI, ABD, SURE, REIN, PATHS, SCALES, OUT_SETS, OUT_HEAD, charlson, rein, scoreScale, outcomes, outcomeRow, filled, evaluate, summary, today };
 if (typeof module !== 'undefined') module.exports = api;
 return api;
 })();
@@ -1173,6 +1266,9 @@ const VALID = [
   ['價值澄清 9 項與特性對照', '偏好', '未驗證（教學性近似）', '項目參考醫策會公版 PDA 與文獻常見考量自行整理；特性分數是作者依衛教資料給的近似值。只用來引導討論，不是量表。'],
   ['綜合建議演算法', '建議', '未驗證', '透明的規則：排除不建議選項 → 尊重病人在可行範圍內的選擇 → 未決定時以價值契合度排序。'],
   ['理解確認 10 題', '知識', '僅內容效度（未做心理計量）', '依指引內容撰寫，用來找出需要再解釋的地方，不能當作知識分數比較。已驗證的腎臟知識量表 KiKS（28 題，KR-20 0.72）測的是一般 CKD 知識而非透析模式，且無驗證過的中文版。'],
+  ['決策衝突量表（DCS，16 題問句版）', '成效：決策衝突', '已驗證（敘述版）；問句版與中文版待驗證', '敘述版 α 0.78–0.92，已用於 30 多項研究；<25 分常能執行決定，>37.5 分常伴隨延遲或不確定。本頁用 OHRI 公布的繁中問句版（2006 譯），手冊註明問句版心理計量資料仍在收集；台灣版未見驗證研究。'],
+  ['決策準備量表（PrepDM）', '成效：討論的幫助', '已驗證（英文版）', 'α 0.92–0.96，可區分不同決策支持介入（效果量 1.8）。中文版為 OHRI 公布譯本，未見中文心理計量研究。'],
+  ['決策後悔量表（DRS）', '成效：事後後悔', '已驗證（英文版）', 'α 0.81–0.92；與決策滿意度（r −0.40 至 −0.60）、決策衝突（r 0.31–0.52）相關。中文版為 OHRI 公布譯本（2006）。沒有官方切點；系統性回顧的跨研究平均 16.5 分。'],
   ['SURE 決策衝突篩檢', '決策品質', '已驗證（英文／法文版）', 'KR-20 0.70；≤3 分相對 DCS >37.5 敏感度 94%、特異度 90%（Ferron Parayre 2014）。本頁使用 OHRI 公布的繁體中文官方譯本（北醫考科藍中心與醫策會翻譯）；中文版尚未見心理計量驗證。']
 ];
 
@@ -1199,6 +1295,10 @@ const REFS = [
   ['Schag CC, et al. Karnofsky performance status revisited: reliability, validity, and guidelines. J Clin Oncol 1984;2:187–193.', 'https://doi.org/10.1200/JCO.1984.2.3.187'],
   ['Légaré F, et al. Are you SURE? Assessing patient decisional conflict with a 4-item screening test. Can Fam Physician 2010;56:e308–e314；Ferron Parayre A, et al. Med Decis Making 2014;34:54–62.', 'https://doi.org/10.1177/0272989X13491463'],
   ['Ottawa Hospital Research Institute. Decisional Conflict Scale & SURE test（含繁體中文版，可免費使用）.', 'https://decisionaid.ohri.ca/eval_dcs.html'],
+  ["O'Connor AM. Validation of a decisional conflict scale. Med Decis Making 1995;15:25–30；User Manual – Decisional Conflict Scale（© 1993, updated 2010）.", 'https://decisionaid.ohri.ca/docs/develop/User_Manuals/UM_Decisional_Conflict.pdf'],
+  ["Bennett C, Graham ID, Kristjansson E, et al. Validation of a preparation for decision making scale. Patient Educ Couns 2010;78:130–133（doi:10.1016/j.pec.2009.05.012）；Graham ID, O'Connor AM. User Manual – Preparation for Decision Making Scale.", 'https://decisionaid.ohri.ca/eval_prepdm.html'],
+  ["Brehaut JC, O'Connor AM, Wood TJ, et al. Validation of a decision regret scale. Med Decis Making 2003;23:281–292；O'Connor AM. User Manual – Decision Regret Scale.", 'https://decisionaid.ohri.ca/docs/develop/User_Manuals/UM_Regret_Scale.pdf'],
+  ['Becerra Pérez MM, Menear M, Brehaut JC, Légaré F. Extent and predictors of decision regret about health care decisions: a systematic review. Med Decis Making 2016;36:777–790.', 'https://doi.org/10.1177/0272989X16636113'],
   ['病人自主權利法（2021-01-20 修正；第 8、9、12、14 條）。全國法規資料庫。', 'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020189'],
   ['衛生福利部公告：病人自主權利法第十四條第一項第五款之病人疾病狀況（2020-01-06 公告 11 類；2021-04-13 增列，共 12 類）。', 'https://www.mohw.gov.tw/cp-16-50877-1.html'],
   ['安寧緩和醫療條例（2021-01-20 修正；第 4–7 條）。全國法規資料庫。', 'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020066'],
@@ -1215,7 +1315,7 @@ const REFS = [
 const $ = id => document.getElementById(id);
 const esc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const LS = 'eskd-sdm-case-v1';
-const blank = () => ({ _pending: [], _log: [], _v: {}, _q: {}, _st: {} });
+const blank = () => ({ _pending: [], _log: [], _v: {}, _q: {}, _st: {}, _o: {} });
 let S = (() => { try { const x = JSON.parse(localStorage.getItem(LS)); if (x && typeof x === 'object') return Object.assign(blank(), x); } catch (e) {} return blank(); })();
 const save = () => { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} };
 let R = null;
@@ -1350,6 +1450,44 @@ function renderPlan() {
     : '<p class="small muted">記錄病人的選擇（或完成價值澄清）後，這裡會列出該模式的準備步驟。</p>';
 }
 
+function renderOut(rebuild) {
+  const O = R.out;
+  const ch = S.choice && !['undecided'].includes(S.choice) ? SDM.F.choice.o.find(o => o[0] === S.choice)[1].split('（')[0] : '＿＿＿＿';
+  const STEM = {
+    dcsPre: '請想想您目前在選擇末期腎臟病治療方式（血液透析、腹膜透析、居家血液透析、腎臟移植、保守治療等）時的想法與感受，選出最能代表您現在感受的答案。',
+    dcsPost: `請想想您這次選擇末期腎臟病治療方式（${ch}）的情形，選出最能代表您現在感受的答案。`,
+    prep: '針對這次的醫病共享決策討論（含本決策輔助工具）對您做決定的幫助，請選出您認同的程度。這次的討論與決策輔助工具是否能…',
+    drs: `請您回想當初跟醫療團隊商討後，選擇末期腎臟病治療方式（${ch}）的情形，選出最能代表您現在想法的答案。`
+  };
+  if (rebuild || !$('outForms').children.length) {
+    $('outForms').innerHTML = SDM.OUT_SETS.map(([k, kind, when]) => {
+      const sc = SDM.SCALES[kind];
+      return `<details class="layer sc" data-out="${k}" ${k === 'dcsPre' ? 'open' : ''}><summary><span class="t">${esc(sc.t.split('（')[0])}：${esc(when)}</span><span class="pill mute" data-otag="${k}"></span></summary><div class="lb">
+        <p class="stem" data-stem="${k}"></p>
+        ${sc.items.map((it, i) => `<div class="qrow"><span class="qq">${i + 1}. ${esc(it)}</span><span class="seg" role="group" aria-label="第 ${i + 1} 題">${sc.opts.map(([v, l]) => `<button type="button" data-os="${k}" data-oi="${i}" data-ov="${v}">${esc(l)}</button>`).join('')}</span></div>`).join('')}
+        <p class="small muted">${esc(sc.cite)}. 取自 decisionaid.ohri.ca。</p>
+        <div><button class="btn sm" type="button" data-oclear="${k}">清除這份</button></div>
+      </div></details>`;
+    }).join('');
+  }
+  const A = S._o || {};
+  document.querySelectorAll('#outForms [data-os]').forEach(b => { const on = (A[b.dataset.os] || [])[+b.dataset.oi] === +b.dataset.ov; b.setAttribute('aria-pressed', on); });
+  document.querySelectorAll('#outForms [data-stem]').forEach(p => { p.textContent = STEM[p.dataset.stem]; });
+  SDM.OUT_SETS.forEach(([k]) => { const r = O[k]; const el = document.querySelector(`[data-otag="${k}"]`); if (el) el.textContent = r.total !== null ? `${r.total} 分` : `${r.n}/${r.of}`; });
+  if (document.activeElement !== $('caseCode')) $('caseCode').value = S._code || '';
+  const row = (l, r, x) => `<tr><td>${esc(l)}</td><td class="mono">${r.total !== null ? r.total : `${r.n}/${r.of} 題`}</td><td class="small">${x || ''}</td></tr>`;
+  const dcsTxt = r => r.total === null ? '' : `${{ low: '<25：通常能執行決定', mid: '25–37.5', high: '>37.5：常伴隨延遲決定或對執行不確定' }[r.band]}；分項 ${r.sub.map(x => `${x[0]} ${x[1]}`).join('、')}`;
+  $('outSum').innerHTML = `<div class="tablebox"><table><thead><tr><th>量表</th><th>分數</th><th>解讀</th></tr></thead><tbody>
+    ${row('SURE', { total: R.rec.sure.done ? R.rec.sure.yes : null, n: R.rec.sure.answered, of: 4 }, R.rec.sure.done ? (R.rec.sure.yes < 4 ? '≤3：有決策衝突' : '無決策衝突') : '')}
+    ${row('DCS 討論前', O.dcsPre, dcsTxt(O.dcsPre))}
+    ${row('DCS 做決定時', O.dcsPost, dcsTxt(O.dcsPost) + (O.dcsDelta !== undefined ? `；與討論前相比 ${O.dcsDelta > 0 ? '+' : ''}${O.dcsDelta}` : ''))}
+    ${row('PrepDM', O.prep, O.prep.total !== null ? '越高代表討論越能幫病人準備好做決定' : '')}
+    ${row('DRS', O.drs, O.drs.total !== null ? `0 無後悔、100 高度後悔；跨 44 項研究平均約 16.5${O.drs.total > 16.5 ? '，本例高於平均，宜了解原因' : ''}` : (O.drsDue ? `建議追蹤：${O.drsDue[0]}（3 個月）／${O.drsDue[1]}（6 個月）` : ''))}
+  </tbody></table></div><p class="small muted" style="margin-top:6px">SURE 欄為 4 題中回答「是」的題數。DCS 與 DRS 分數越高越不好；PrepDM 越高越好。</p>`;
+  const done = SDM.OUT_SETS.filter(([k]) => O[k].total !== null).length;
+  $('outTag').textContent = `${done}/4 份完成`;
+}
+
 function renderAcpBox() {
   $('acpCard').hidden = !R.acp.length;
   $('acpBox').innerHTML = R.acp.map(alertHTML).join('');
@@ -1392,7 +1530,7 @@ function renderQuiz() {
 function renderAll() {
   const f = focusMark();
   R = SDM.evaluate(S);
-  renderStatus(); renderAsks(); renderProg(); renderOpts(); renderFit(); renderPlan(); renderAcpBox(); renderPath(); syncSheet(); renderLog(); renderQuiz(); renderAcpPane();
+  renderStatus(); renderAsks(); renderProg(); renderOpts(); renderFit(); renderPlan(); renderOut(); renderAcpBox(); renderPath(); syncSheet(); renderLog(); renderQuiz(); renderAcpPane();
   save();
   focusRestore(f);
 }
@@ -1402,8 +1540,8 @@ function focusMark() {
   const ae = document.activeElement;
   if (!ae || ae === document.body || !ae.closest) return null;
   const card = ae.closest('#asks .ask');
-  const sel = ae.dataset.f ? `[data-f="${ae.dataset.f}"]` : ae.dataset.step ? `[data-step="${ae.dataset.step}"]` : ae.dataset.pend ? `[data-pend="${ae.dataset.pend}"]` : ae.dataset.qid ? `[data-qid="${ae.dataset.qid}"][data-qa="${ae.dataset.qa}"]` : ae.dataset.v ? `[data-v="${ae.dataset.v}"][data-lv="${ae.dataset.lv}"]` : null;
-  const zone = card ? '#asks' : ae.closest('#sheet') ? '#sheet' : ae.closest('#sureBox') ? '#sureBox' : ae.closest('#planBox') ? '#planBox' : ae.closest('#quizRows') ? '#quizRows' : ae.closest('#valRows') ? '#valRows' : null;
+  const sel = ae.dataset.os ? `[data-os="${ae.dataset.os}"][data-oi="${ae.dataset.oi}"][data-ov="${ae.dataset.ov}"]` : ae.dataset.f ? `[data-f="${ae.dataset.f}"]` : ae.dataset.step ? `[data-step="${ae.dataset.step}"]` : ae.dataset.pend ? `[data-pend="${ae.dataset.pend}"]` : ae.dataset.qid ? `[data-qid="${ae.dataset.qid}"][data-qa="${ae.dataset.qa}"]` : ae.dataset.v ? `[data-v="${ae.dataset.v}"][data-lv="${ae.dataset.lv}"]` : null;
+  const zone = card ? '#asks' : ae.closest('#sheet') ? '#sheet' : ae.closest('#sureBox') ? '#sureBox' : ae.closest('#planBox') ? '#planBox' : ae.closest('#outForms') ? '#outForms' : ae.closest('#quizRows') ? '#quizRows' : ae.closest('#valRows') ? '#valRows' : null;
   return { sel, zone, key: card && card.dataset.ask, idx: card ? [...document.querySelectorAll('#asks .ask')].indexOf(card) : -1 };
 }
 function focusRestore(m) {
@@ -1438,6 +1576,7 @@ function setField(id, el) {
     if (NONE[id]) NONE[id].filter(x => x !== 'nh').forEach(x => S[x] = false);
     Object.entries(NONE).forEach(([n, list]) => { if (list.includes(id) && id !== 'nh') S[n] = false; });
   }
+  if (id === 'choice') S._decT = v && v !== 'undecided' ? (S._decT || Date.now()) : undefined;
   log(`${f.l.split('（')[0].split('：')[0]}：${labelOf(id, v)}`);
   setTimeout(renderAll, 0); // let focus land on the next field first
 }
@@ -1447,6 +1586,7 @@ document.addEventListener('change', e => {
   const el = e.target.closest('[data-f]');
   if (el) setField(el.dataset.f, el);
 });
+document.addEventListener('input', e => { if (e.target.id === 'caseCode') { S._code = e.target.value.trim(); save(); } });
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.matches('input[type=number][data-f]')) { e.preventDefault(); e.target.blur(); }
 });
@@ -1458,6 +1598,11 @@ document.addEventListener('click', e => {
   const g = e.target.closest('[data-go]'); if (g) { showTab(g.dataset.go); return; }
   const vb = e.target.closest('[data-v]');
   if (vb) { const k = vb.dataset.v, lv = +vb.dataset.lv; S._v[k] = S._v[k] === lv ? undefined : lv; log(`在意「${SDM.VALS.find(x => x[0] === k)[1]}」：${S._v[k] === undefined ? '清除' : VLEV[lv]}`); renderVals(); renderAll(); return; }
+  const ob = e.target.closest('[data-os]');
+  if (ob) { S._o = S._o || {}; const k = ob.dataset.os, i = +ob.dataset.oi, v = +ob.dataset.ov; const a = S._o[k] = S._o[k] || []; a[i] = a[i] === v ? null : v; renderAll(); return; }
+  const oc = e.target.closest('[data-oclear]'); if (oc) { if (S._o) delete S._o[oc.dataset.oclear]; log('清除成效量表：' + oc.dataset.oclear); renderAll(); return; }
+  if (e.target.id === 'copyRow') { copyText(SDM.outcomeRow(S), '成效分數已複製，可貼到 Excel'); return; }
+  if (e.target.id === 'copyHead') { copyText(SDM.OUT_HEAD, '欄位標題已複製'); return; }
   const qb = e.target.closest('[data-qid]');
   if (qb) { const x = SDM.QUIZ.find(q => q.id === qb.dataset.qid); const a = qb.dataset.qa === '1'; S._q[x.id] = a; log(`理解確認第 ${SDM.QUIZ.indexOf(x) + 1} 題：${a === x.a ? '答對' : '答錯，已說明'}`); renderAll(); return; }
   if (e.target.id === 'valClear') { if (confirm('清除價值澄清的作答？')) { S._v = {}; renderVals(); renderAll(); } return; }
@@ -1468,8 +1613,8 @@ document.addEventListener('click', e => {
   const c = e.target.closest('[data-case]'); if (c) { loadCase(+c.dataset.case); return; }
 });
 
-function copyText(t) {
-  const done = () => toast('SDM 紀錄已複製，可貼到病歷');
+function copyText(t, msg) {
+  const done = () => toast(msg || 'SDM 紀錄已複製，可貼到病歷');
   if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(done, () => fallback());
   else fallback();
   function fallback() { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) { toast('無法複製'); } ta.remove(); }
@@ -1477,7 +1622,7 @@ function copyText(t) {
 let tt; function toast(m) { const el = $('toast'); el.textContent = m; el.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('show'), 1800); }
 
 /* tabs */
-const TABS = ['ws', 'opts', 'vals', 'quiz', 'plan', 'acp', 'algo', 'cases', 'ref'];
+const TABS = ['ws', 'opts', 'vals', 'quiz', 'plan', 'out', 'acp', 'algo', 'cases', 'ref'];
 function showTab(t) {
   TABS.forEach(x => { $(x).hidden = x !== t; $('tab-' + x).setAttribute('aria-selected', x === t); $('tab-' + x).tabIndex = x === t ? 0 : -1; });
   try { localStorage.setItem(LS + '-tab', t); } catch (e) {}
@@ -1546,6 +1691,7 @@ function renderCases() {
 function loadCase(i) {
   const c = CASES[i];
   S = Object.assign(blank(), JSON.parse(JSON.stringify(c.s)));
+  if (S.choice && S.choice !== 'undecided') S._decT = Date.now();
   log(`載入示例：${c.t}`);
   renderVals(); renderAll(); showTab('ws'); toast('已載入示例：' + c.t);
 }

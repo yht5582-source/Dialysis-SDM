@@ -240,6 +240,52 @@ t('completed steps counted', () => {
   assert.equal(p.n, 2);
 });
 
+console.log('Outcome measures (OHRI manuals)');
+const fill = (n, v) => Array(n).fill(v);
+t('DCS: all "yes" (0) → 0; all "no" (4) → 100; all "unsure" (2) → 50', () => {
+  assert.equal(E.scoreScale('dcs', fill(16, 0)).total, 0);
+  assert.equal(E.scoreScale('dcs', fill(16, 4)).total, 100);
+  assert.equal(E.scoreScale('dcs', fill(16, 2)).total, 50);
+});
+t('DCS incomplete → no total', () => assert.equal(E.scoreScale('dcs', fill(15, 1)).total, null));
+t('DCS subscales use manual item sets (uncertainty = items 10–12)', () => {
+  const a = fill(16, 0); a[9] = a[10] = a[11] = 4;
+  const r = E.scoreScale('dcs', a);
+  assert.equal(r.total, 18.8); assert.deepEqual(r.sub.find(x => x[0] === '不確定'), ['不確定', 100]);
+  assert.equal(r.sub.find(x => x[0] === '資訊')[1], 0); assert.equal(r.band, 'low');
+});
+t('DCS bands: >37.5 high, exactly 37.5 mid', () => {
+  assert.equal(E.scoreScale('dcs', fill(16, 2)).band, 'high');
+  const a = fill(16, 1); a[0] = a[1] = a[2] = a[3] = a[4] = a[5] = a[6] = a[7] = 2; // sum 24 → 37.5
+  assert.equal(E.scoreScale('dcs', a).total, 37.5); assert.equal(E.scoreScale('dcs', a).band, 'mid');
+});
+t('PrepDM: all 1 → 0, all 5 → 100, all 3 → 50', () => {
+  assert.equal(E.scoreScale('prep', fill(10, 1)).total, 0);
+  assert.equal(E.scoreScale('prep', fill(10, 5)).total, 100);
+  assert.equal(E.scoreScale('prep', fill(10, 3)).total, 50);
+});
+t('DRS: items 2 and 4 reversed — "strongly agree right/wise, strongly disagree regret/harm" → 0', () => {
+  assert.equal(E.scoreScale('drs', [1, 5, 1, 5, 1]).total, 0);
+  assert.equal(E.scoreScale('drs', [5, 1, 5, 1, 5]).total, 100);
+  assert.equal(E.scoreScale('drs', [2, 4, 2, 4, 2]).total, 25);
+});
+t('DCS change pre→post and DRS due dates from decision time', () => {
+  const O = E.outcomes({ _o: { dcsPre: fill(16, 2), dcsPost: fill(16, 1) }, _decT: new Date(2026, 9, 9).getTime() });
+  assert.equal(O.dcsDelta, -25); assert.deepEqual(O.drsDue, ['2027-01-09', '2027-04-09']);
+});
+t('outcome row is tab-separated with 10 columns matching the header', () => {
+  const row = E.outcomeRow({ _code: 'A01', stage: 'ckd', choice: 'pd', _o: { prep: fill(10, 4) } }, '2026-10-09');
+  assert.equal(row.split('\t').length, E.OUT_HEAD.split('\t').length);
+  assert.ok(row.startsWith('2026-10-09\tA01\t')); assert.ok(row.includes('\t75\t'));
+});
+t('Chinese item counts match the instruments (16 / 10 / 5)', () => {
+  assert.equal(E.SCALES.dcs.items.length, 16); assert.equal(E.SCALES.prep.items.length, 10); assert.equal(E.SCALES.drs.items.length, 5);
+});
+t('summary includes outcome scores and DRS follow-up date', () => {
+  const s = E.summary({ stage: 'ckd', choice: 'pd', _decT: new Date(2026, 9, 9).getTime(), _o: { dcsPre: fill(16, 2), dcsPost: fill(16, 1), prep: fill(10, 5) } }, '2026-10-09');
+  ['DCS 討論前 50', 'DCS 做決定時 25（變化 -25）', 'PrepDM 100', '2027-01-09'].forEach(k => assert.ok(s.includes(k), k));
+});
+
 console.log('Knowledge check');
 t('scores answers', () => {
   const Q = ev({ _q: { q1: false, q2: true, q3: true } }).quiz;
