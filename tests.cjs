@@ -19,8 +19,8 @@ function t(name, fn) {
 const ev = s => E.evaluate(s);
 const keys = r => r.asks.map(a => a.key);
 const opt = (r, id) => r.opts.find(o => o.id === id);
-const WELL = { sq: 'yes', func: 'indep', dem: 'none', alb: 4, cNone: true };
-const FRAIL = { sq: 'no', func: 'dep', dem: 'mild', alb: 2.4, cChf: true, cPad: true };
+const WELL = { sq: 'yes', kps: '90', dem: 'none', alb: 4, cNone: true };
+const FRAIL = { sq: 'no', kps: '30', dem: 'mild', alb: 2.4, ccChf: true, ccPvd: true, ccDm2: true };
 
 console.log('Guided flow');
 t('nothing entered → asks only for the base card', () => assert.deepEqual(keys(ev({})), ['base']));
@@ -58,12 +58,56 @@ t('albumin exactly 2.5 does not meet the <2.5 criterion', () => {
   const P = ev({ age: 80, stage: 'ckd', cap: 'yes', ...WELL, sq: 'no', alb: 2.5 }).P;
   assert.equal(P.crit.length, 1);
 });
-t('active cancer alone counts as high comorbidity', () => {
-  const P = ev({ age: 80, stage: 'ckd', cap: 'yes', sq: 'no', func: 'indep', dem: 'none', cCa: true }).P;
-  assert.ok(P.crit.includes('高共病負擔')); assert.equal(P.rpa, true);
+t('metastatic tumour alone → Charlson ≥8 → high comorbidity', () => {
+  const P = ev({ age: 80, stage: 'ckd', cap: 'yes', sq: 'no', kps: '80', dem: 'none', ccMets: true }).P;
+  assert.ok(P.crit.some(c => c.startsWith('高共病負擔'))); assert.equal(P.rpa, true);
+});
+t('KPS 40 is not <40; KPS 30 is', () => {
+  assert.ok(!ev({ age: 80, stage: 'ckd', sq: 'yes', kps: '40', cNone: true }).P.crit.some(c => c.includes('KPS')));
+  assert.ok(ev({ age: 80, stage: 'ckd', sq: 'yes', kps: '30', cNone: true }).P.crit.some(c => c.includes('KPS')));
 });
 t('well 45 y → good', () => assert.equal(ev({ age: 45, stage: 'ckd', cap: 'yes', ...WELL }).P.level, 'good'));
-t('prognosis unknown until SQ and function given', () => assert.equal(ev({ age: 70, stage: 'ckd', cap: 'yes' }).P.level, null));
+t('prognosis unknown until SQ and KPS given', () => assert.equal(ev({ age: 70, stage: 'ckd', cap: 'yes' }).P.level, null));
+
+console.log('Charlson comorbidity index');
+t('renal disease 2 points always; 1 age point per full decade over 40', () => {
+  assert.equal(E.charlson({}, 45).total, 2);
+  assert.equal(E.charlson({}, 55).total, 3);
+  assert.equal(E.charlson({}, 65).total, 4);
+  assert.equal(E.charlson({}, 75).total, 5);
+  assert.equal(E.charlson({}, 85).total, 6);
+  assert.equal(E.charlson({}, 92).total, 7);
+});
+t('diabetes without organ damage still scores 2 with kidney disease (minimum 4)', () => assert.equal(E.charlson({ ccDm: true }, 40).base, 4));
+t('hierarchies: DM with organ damage replaces DM; metastatic replaces tumour; severe liver replaces mild', () => {
+  assert.equal(E.charlson({ ccDm: true, ccDm2: true }, 40).base, 4);
+  assert.equal(E.charlson({ ccTum: true, ccMets: true }, 40).base, 8);
+  assert.equal(E.charlson({ ccLiv1: true, ccLiv3: true }, 40).base, 5);
+});
+t('dementia from cognition field adds 1', () => assert.equal(E.charlson({ dem: 'mild' }, 40).base, 3));
+t('FRAIL 84 y → 11 (CHF 1, PVD 1, DM2 2, dementia 1, renal 2, age 4)', () => assert.equal(E.charlson({ ...FRAIL }, 84).total, 11));
+t('high comorbidity needs an answered comorbidity card', () => assert.equal(ev({ age: 90, stage: 'ckd' }).d.highComorb, false));
+
+console.log('REIN score');
+t('REIN only for ≥75 y before dialysis', () => {
+  assert.equal(ev({ age: 74, stage: 'ckd', rNone: true }).d.rein, null);
+  assert.equal(ev({ age: 80, stage: 'hd', rNone: true }).d.rein, null);
+  assert.deepEqual(ev({ age: 80, stage: 'ckd', rNone: true }).d.rein, { score: 0, mort6: 8 });
+});
+t('REIN mapping 1→10, 2→17, 4→21, 6→33, 8→50, 9→70', () => {
+  const sc = x => ev({ age: 80, stage: 'ckd', ...x }).d.rein.mort6;
+  assert.equal(sc({ rDm: true }), 10);
+  assert.equal(sc({ rChf: true }), 17);
+  assert.equal(sc({ rChf: true, rPvd: true }), 21);
+  assert.equal(sc({ rTrans: true, rChf: true, rArr: true }), 33);
+  assert.equal(sc({ rTrans: true, rChf: true, rPvd: true, rArr: true }), 50);
+  assert.equal(sc({ rTrans: true, rChf: true, rPvd: true, rBeh: true }), 70);
+});
+t('REIN ≥33% appears as a prognosis flag and REIN card is optional', () => {
+  const r = ev({ age: 80, stage: 'ckd', cap: 'yes', rTrans: true, rChf: true, rArr: true, sq: 'yes', kps: '50' });
+  assert.ok(r.P.flags.some(f => f.startsWith('REIN')));
+  assert.equal(ev({ age: 80, stage: 'ckd', cap: 'yes' }).asks.find(a => a.key === 'rein').pri, 'later');
+});
 
 console.log('Timing (KDIGO 2024)');
 t('eGFR 25 → still time, transplant referral (<30)', () => {
@@ -138,6 +182,64 @@ t('poor prognosis lowers dialysis "life" score', () => {
 });
 t('top values = rated ≥3', () => assert.deepEqual(ev({ stage: 'ckd', _v: { home: 3, diet: 2, life: 4 } }).fit.top, ['盡量延長壽命', '在家治療，待在熟悉的地方']));
 
+console.log('Recommendation');
+const FEAS = { age: 60, stage: 'ckd', cap: 'yes', egfr: 12, ...WELL, tNone: true, donor: 'no', aNone: true, self: 'self', home: 'ok' };
+t('no values, no choice → needs data', () => assert.equal(ev(FEAS).rec.status, 'need'));
+t('undecided + values → suggests top fit', () => {
+  const r = ev({ ...FEAS, _v: { home: 4, sched: 4 }, choice: 'undecided' }).rec;
+  assert.equal(r.status, 'suggest'); assert.equal(r.primary.id, 'pd');
+});
+t('feasible choice is respected even if another fits better', () => {
+  const r = ev({ ...FEAS, _v: { home: 4, sched: 4 }, choice: 'hd' }).rec;
+  assert.equal(r.status, 'ok'); assert.equal(r.primary.id, 'hd');
+  assert.ok(r.notes.some(n => n.includes('差距較大')));
+});
+t('choice not advised → conflict, best feasible alternative offered', () => {
+  const r = ev({ ...FEAS, aNone: false, aHernia: true, _v: { home: 4 }, choice: 'pd' }).rec;
+  assert.equal(r.status, 'conflict'); assert.ok(['hd', 'hhd'].includes(r.primary.id));
+});
+t('choice needing evaluation → backup offered', () => {
+  const r = ev({ ...FEAS, aNone: false, aSurg: true, _v: { home: 4, staff: 2 }, choice: 'pd' }).rec;
+  assert.equal(r.status, 'eval'); assert.ok(r.alt && r.alt.id !== 'pd');
+});
+t('transplant → bridge dialysis chosen; pre-emptive note with living donor', () => {
+  const r = ev({ ...FEAS, donor: 'yes', _v: { home: 4 }, choice: 'tx' }).rec;
+  assert.equal(r.primary.id, 'tx'); assert.equal(r.bridge.id, 'pd'); assert.ok(r.notes.some(n => n.includes('先發性')));
+});
+t('time-limited trial gets a bridge modality', () => assert.ok(ev({ ...FEAS, sq: 'no', choice: 'ttl' }).rec.bridge));
+t('CKM chosen while on dialysis maps to withdrawal', () => assert.equal(ev({ ...FEAS, stage: 'hd', choice: 'ckm' }).rec.primary.id, 'wd'));
+t('poor prognosis + dialysis choice → time-limited framing', () => {
+  assert.ok(ev({ age: 84, stage: 'ckd', cap: 'yes', ...FRAIL, aNone: true, self: 'helper', home: 'ok', choice: 'hd' }).rec.notes.some(n => n.includes('限時嘗試')));
+});
+t('SURE 3/4 → not ready; 4/4 → ready', () => {
+  const y = { sure1: 'y', sure2: 'y', sure3: 'y', sure4: 'y' };
+  assert.equal(ev({ ...FEAS, choice: 'hd', ...y, sure2: 'n' }).rec.ready, false);
+  assert.equal(ev({ ...FEAS, choice: 'hd', ...y }).rec.ready, true);
+});
+t('SURE asked only after a choice is made', () => {
+  assert.ok(!keys(ev({ ...FEAS, choice: 'undecided' })).includes('sure'));
+  assert.ok(keys(ev({ ...FEAS, choice: 'hd' })).includes('sure'));
+});
+
+console.log('Care pathway');
+t('pre-dialysis HD pathway includes access steps; on HD continuing → maintenance path', () => {
+  assert.ok(ev({ ...FEAS, choice: 'hd' }).plan[0].steps.some(x => x.key === 'hd.avf'));
+  const p = ev({ ...FEAS, stage: 'hd', choice: 'cont' }).plan;
+  assert.equal(p[0].id, 'cont');
+});
+t('PD on dialysis already → no catheter step', () => {
+  assert.ok(!ev({ ...FEAS, stage: 'hd', choice: 'pd' }).plan[0].steps.some(x => x.key === 'pd.cath'));
+});
+t('transplant pathway: donor step only with a donor; bridge pathway appended', () => {
+  const a = ev({ ...FEAS, donor: 'no', choice: 'tx' }).plan;
+  assert.ok(!a[0].steps.some(x => x.key === 'tx.donor')); assert.equal(a.length, 2);
+  assert.ok(ev({ ...FEAS, donor: 'yes', choice: 'tx' }).plan[0].steps.some(x => x.key === 'tx.donor'));
+});
+t('completed steps counted', () => {
+  const p = ev({ ...FEAS, choice: 'ckm', _st: { 'ckm.hosp': 1, 'ckm.sx': 2 } }).plan[0];
+  assert.equal(p.n, 2);
+});
+
 console.log('Knowledge check');
 t('scores answers', () => {
   const Q = ev({ _q: { q1: false, q2: true, q3: true } }).quiz;
@@ -176,8 +278,8 @@ t('path marks first incomplete step as current', () => {
 });
 t('on dialysis: kidney-function step is skipped', () => assert.equal(ev({ stage: 'hd', cap: 'yes' }).path[1].skip, true));
 t('summary contains stage, prognosis, options, decision', () => {
-  const s = E.summary({ age: 84, stage: 'ckd', cap: 'yes', egfr: 9, ...FRAIL, _v: { home: 4 }, _q: { q1: false }, choice: 'ckm', when: 'now' }, '2026-10-09');
-  ['2026-10-09', '84 歲', 'eGFR 9', '預後不良', 'RPA', '腎臟保守治療', '理解確認：1/10', '決定：腎臟保守治療（不透析）'].forEach(k => assert.ok(s.includes(k), k));
+  const s = E.summary({ age: 84, stage: 'ckd', cap: 'yes', egfr: 9, ...FRAIL, _v: { home: 4 }, _q: { q1: false }, choice: 'ckm', when: 'now', sure1: 'y', sure2: 'y', sure3: 'y', sure4: 'n', _st: { 'ckm.hosp': 1 } }, '2026-10-09');
+  ['2026-10-09', '84 歲', 'eGFR 9', '預後不良', 'RPA', 'KPS 30', 'Charlson 11', '理解確認：1/10', '病人選擇：腎臟保守治療（不透析）', 'SURE：3/4（有決策衝突）', '綜合建議：依病人選擇「腎臟保守治療（不透析）」', '已完成 1/8'].forEach(k => assert.ok(s.includes(k), k));
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

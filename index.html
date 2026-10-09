@@ -234,6 +234,13 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
 .kv .m{border:1px solid var(--line-2);border-radius:8px;padding:9px 12px;background:var(--paper);display:grid;gap:3px;align-content:start}
 .kv .m .k{font-size:12px;color:var(--ink-2)}
 .kv .m .v{font-size:15px;font-weight:700}
+.step{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:start;padding:6px 0;border-bottom:1px dashed var(--line-2);font-size:14px;cursor:pointer}
+.step input{margin-top:5px;accent-color:var(--accent)}
+.step.done span.tx{color:var(--ink-3);text-decoration:line-through}
+.step .dt{font-family:var(--f-mono);font-size:12px;color:var(--go);white-space:nowrap}
+.pw+.pw{margin-top:14px}
+.pw h4{display:flex;justify-content:space-between;gap:8px;margin-bottom:4px;color:var(--accent)}
+.recp{font-size:18px;font-weight:700;font-family:var(--f-display)}
 .pfaq{display:grid;gap:8px}
 .pfaq details{border:1px solid var(--line-2);border-radius:8px;padding:8px 12px;background:var(--panel)}
 .pfaq summary{cursor:pointer;font-weight:500}
@@ -245,7 +252,7 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
   <header class="masthead">
     <div class="eyebrow">Kidney failure · shared decision-making, conservative care &amp; advance care planning</div>
     <h1>末期腎臟病共享決策</h1>
-    <p class="sub">給腎臟科團隊和病人、家屬一起使用。先確認病人在哪個階段、預後如何，再逐一檢視院內血液透析、腹膜透析、居家血液透析、腎臟移植、腎臟保守治療與停止透析各自是否可行；接著請病人標出自己在意的事，確認理解，並同時規劃預立醫療照護諮商（ACP）、預立醫療決定（AD）與 DNR。最後可以一鍵複製 SDM 紀錄貼到病歷。</p>
+    <p class="sub">給腎臟科團隊和病人、家屬一起使用。先確認病人在哪個階段、預後如何，再逐一檢視院內血液透析、腹膜透析、居家血液透析、腎臟移植、腎臟保守治療與停止透析各自是否可行；接著請病人標出自己在意的事、確認理解並記錄選擇，系統結合醫療可行性與病人價值提出綜合建議，導引到該模式的執行路徑；同時規劃預立醫療照護諮商（ACP）、預立醫療決定（AD）與 DNR。預後使用意外問題、KPS、修正版 Charlson 與 REIN 等已驗證工具，決策準備度用 SURE 測驗。最後可以一鍵複製 SDM 紀錄貼到病歷。</p>
     <div class="src"><span>KDIGO CKD 2024</span><span>KDIGO 移植候選人 2020</span><span>RPA 透析開始與停止 SDM 指引 2010</span><span>KDIGO 腎臟支持照護共識 2015</span><span>病人自主權利法</span><span>安寧緩和醫療條例</span><span>健保 PD 推動計畫（114.05.21）</span><span>台灣腎病年報（2022 年資料）</span></div>
   </header>
 
@@ -254,10 +261,11 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
     <button class="tab" role="tab" id="tab-opts" aria-controls="opts" data-t="opts"><b>2</b>選項比較</button>
     <button class="tab" role="tab" id="tab-vals" aria-controls="vals" data-t="vals"><b>3</b>價值澄清</button>
     <button class="tab" role="tab" id="tab-quiz" aria-controls="quiz" data-t="quiz"><b>4</b>理解確認</button>
-    <button class="tab" role="tab" id="tab-acp" aria-controls="acp" data-t="acp"><b>5</b>ACP・AD・DNR</button>
-    <button class="tab" role="tab" id="tab-algo" aria-controls="algo" data-t="algo"><b>6</b>流程總覽</button>
-    <button class="tab" role="tab" id="tab-cases" aria-controls="cases" data-t="cases"><b>7</b>示例病例</button>
-    <button class="tab" role="tab" id="tab-ref" aria-controls="ref" data-t="ref"><b>8</b>參考文獻</button>
+    <button class="tab" role="tab" id="tab-plan" aria-controls="plan" data-t="plan"><b>5</b>綜合建議與路徑</button>
+    <button class="tab" role="tab" id="tab-acp" aria-controls="acp" data-t="acp"><b>6</b>ACP・AD・DNR</button>
+    <button class="tab" role="tab" id="tab-algo" aria-controls="algo" data-t="algo"><b>7</b>流程總覽</button>
+    <button class="tab" role="tab" id="tab-cases" aria-controls="cases" data-t="cases"><b>8</b>示例病例</button>
+    <button class="tab" role="tab" id="tab-ref" aria-controls="ref" data-t="ref"><b>9</b>參考文獻與信效度</button>
   </nav>
 
   <div class="status" id="status" aria-live="polite"></div>
@@ -287,6 +295,10 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
         <div class="card" id="fitCard" hidden>
           <h3>與病人在意的事對照</h3>
           <div id="fitBox"></div>
+        </div>
+        <div class="card" id="recCard" hidden>
+          <h3>綜合建議</h3>
+          <div id="recMini"></div>
         </div>
         <div class="card" id="acpCard" hidden>
           <h3>預立醫療：建議的下一步</h3>
@@ -415,7 +427,32 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
     </div>
   </section>
 
-  <!-- 5 ACP / AD / DNR -->
+  <!-- 5 recommendation & pathway -->
+  <section class="pane" id="plan" role="tabpanel" aria-labelledby="tab-plan" hidden>
+    <div class="two">
+      <div class="stack">
+        <div class="card">
+          <h3>綜合建議 <span class="pill mute" id="recTag"></span></h3>
+          <div id="recBox"></div>
+          <p class="small muted" style="margin-top:10px">建議的順序：先排除醫療上不建議的選項，再看病人的選擇；病人還沒決定時，以價值契合度排序（「需評估」的選項打 0.85 折）。系統不會推翻病人在可行範圍內的選擇。</p>
+        </div>
+        <div class="card">
+          <h3>病人的選擇與 SURE 決策準備度</h3>
+          <div class="grid2" id="sureBox"></div>
+          <p class="small muted" style="margin-top:8px">SURE 測驗 © O'Connor &amp; Légaré 2008，繁體中文版由臺北醫學大學考科藍臺灣研究中心與醫策會翻譯，依 OHRI 授權免費使用。≤3 分判定有決策衝突（相對 DCS &gt;37.5：敏感度 94%、特異度 90%）。</p>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <h3>執行路徑 <span class="pill ev" id="planTag"></span></h3>
+          <p class="small muted" style="margin-bottom:8px">勾選完成的項目會記下日期，並寫進 SDM 紀錄。</p>
+          <div id="planBox"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 ACP / AD / DNR -->
   <section class="pane" id="acp" role="tabpanel" aria-labelledby="tab-acp" hidden>
     <div class="stack" id="acpPane"></div>
   </section>
@@ -458,6 +495,11 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
   <!-- 8 references -->
   <section class="pane" id="ref" role="tabpanel" aria-labelledby="tab-ref" hidden>
     <div class="card">
+      <h3>評估工具的信效度</h3>
+      <p class="small muted" style="margin-bottom:8px">本頁哪些部分是經過驗證的工具、哪些是共識或教學用的近似，一次說清楚。</p>
+      <div class="tablebox"><table class="law" id="valTable"></table></div>
+    </div>
+    <div class="card" style="margin-top:16px">
       <h3>參考文獻</h3>
       <ol class="refs" id="refList"></ol>
     </div>
@@ -475,6 +517,8 @@ const TH = {
   rpaAge: 75,        // RPA 2010 Rec 6: age ≥75 plus ≥2 poor-prognosis criteria
   rpaAlb: 2.5,       // RPA: severe chronic malnutrition, albumin <2.5 g/dL
   albLow: 3.5,       // low albumin → guarded prognosis
+  rpaKps: 40,        // RPA 2010 Rec 6: Karnofsky Performance Status <40
+  cciHigh: 8,        // RPA 2010: high comorbidity, e.g. modified Charlson ≥8 (age-adjusted, renal disease scored)
   txRefer: 30,       // KDIGO 2020 transplant candidate: refer at eGFR <30
   egfrPrep: 20,      // KDIGO 2024 PP 5.4.3: GFR <15–20 → plan access / pre-emptive transplant
   kfrePrep: 40,      // KDIGO 2024 PP 2.2.3 / 5.4.3: 2-y KFRE >40% → modality education, access planning, transplant referral
@@ -498,17 +542,38 @@ const F = {
   kfre: { l: 'KFRE 2 年腎衰竭風險', t: 'num', u: '%', step: 0.1, L: 1, h: '用 kidneyfailurerisk.com 計算後填入（eGFR 15–60 適用）' },
   sx: { l: '尿毒症狀或難控制的問題', t: 'sel', L: 1, o: [['none', '沒有'], ['mild', '輕微（疲倦、食慾差、皮膚癢）'], ['sev', '明顯（噁心嘔吐、喘、水腫或高血鉀難控制、意識改變）']] },
   sq: { l: '意外問題：「如果這位病人在 12 個月內過世，我會感到意外嗎？」', t: 'sel', L: 2, h: '由主治醫師回答', o: [['yes', '會意外'], ['no', '不會意外']] },
-  func: { l: '日常功能', t: 'sel', L: 2, o: [['indep', '生活自理，可外出活動'], ['some', '部分需要協助（洗澡、外出、家務）'], ['dep', '大部分時間臥床或坐著，日常生活多需他人照顧']] },
+  kps: { l: 'Karnofsky 功能狀態（KPS）', t: 'sel', L: 2, h: 'RPA 以 KPS <40 為「功能明顯受損」', o: [['100', '100：正常，無症狀'], ['90', '90：可正常活動，輕微症狀'], ['80', '80：勉強可正常活動，有些症狀'], ['70', '70：生活可自理，無法正常工作或活動'], ['60', '60：偶爾需要協助，大部分自理'], ['50', '50：需要相當多協助，常需醫療照顧'], ['40', '40：失能，需要特別照顧與協助'], ['30', '30：嚴重失能，需住院照顧'], ['20', '20：病重，需積極支持治療'], ['10', '10：瀕死']] },
   dem: { l: '認知功能', t: 'sel', L: 2, o: [['none', '正常'], ['mild', '輕度認知障礙或輕度失智'], ['sev', '中重度失智']] },
   alb: { l: '血清白蛋白', t: 'num', u: 'g/dL', step: 0.1, L: 2 },
   nh: { l: '住在長照機構', t: 'chk', L: 2 },
-  cChf: { l: '心衰竭（NYHA III–IV）', t: 'chk', L: 2 },
-  cCa: { l: '活動性或轉移性癌症', t: 'chk', L: 2 },
-  cPad: { l: '周邊動脈疾病（截肢、潰瘍）', t: 'chk', L: 2 },
-  cLung: { l: '嚴重肺病（需氧氣）', t: 'chk', L: 2 },
-  cCva: { l: '中風後遺症', t: 'chk', L: 2 },
-  cLiver: { l: '肝硬化', t: 'chk', L: 2 },
-  cNone: { l: '以上皆無', t: 'chk', L: 2 },
+  ccMi: { l: '心肌梗塞病史', t: 'chk', L: 2, w: 1 },
+  ccChf: { l: '鬱血性心衰竭', t: 'chk', L: 2, w: 1 },
+  ccPvd: { l: '周邊血管疾病（跛行、繞道、截肢、主動脈瘤）', t: 'chk', L: 2, w: 1 },
+  ccCvd: { l: '腦血管疾病（中風或暫時性腦缺血，後遺症輕微）', t: 'chk', L: 2, w: 1 },
+  ccCopd: { l: '慢性肺病', t: 'chk', L: 2, w: 1 },
+  ccCtd: { l: '結締組織疾病（紅斑性狼瘡、類風濕性關節炎等）', t: 'chk', L: 2, w: 1 },
+  ccPud: { l: '消化性潰瘍', t: 'chk', L: 2, w: 1 },
+  ccLiv1: { l: '輕度肝病（慢性肝炎、無門脈高壓的肝硬化）', t: 'chk', L: 2, w: 1 },
+  ccDm: { l: '糖尿病，無器官損傷（修正版：腎臟病合併糖尿病至少計 4 分）', t: 'chk', L: 2, w: 1 },
+  ccDm2: { l: '糖尿病合併器官損傷（視網膜、神經、腎病變）', t: 'chk', L: 2, w: 2 },
+  ccHemi: { l: '偏癱', t: 'chk', L: 2, w: 2 },
+  ccTum: { l: '惡性腫瘤（近 5 年內，無轉移）', t: 'chk', L: 2, w: 2 },
+  ccLeuk: { l: '白血病', t: 'chk', L: 2, w: 2 },
+  ccLymph: { l: '淋巴瘤', t: 'chk', L: 2, w: 2 },
+  ccLiv3: { l: '中重度肝病（肝硬化合併門脈高壓）', t: 'chk', L: 2, w: 3 },
+  ccMets: { l: '轉移性實體腫瘤', t: 'chk', L: 2, w: 6 },
+  ccAids: { l: '愛滋病（AIDS）', t: 'chk', L: 2, w: 6 },
+  cNone: { l: 'Charlson 各項皆無', t: 'chk', L: 2 },
+  rBmi: { l: 'BMI <18.5', t: 'chk', L: 2, w: 2 },
+  rDm: { l: '糖尿病', t: 'chk', L: 2, w: 1 },
+  rChf: { l: '心衰竭 NYHA III–IV', t: 'chk', L: 2, w: 2 },
+  rPvd: { l: '周邊血管疾病第 III–IV 期（休息痛、潰瘍、壞疽）', t: 'chk', L: 2, w: 2 },
+  rArr: { l: '心律不整', t: 'chk', L: 2, w: 1 },
+  rCa: { l: '活動性惡性腫瘤', t: 'chk', L: 2, w: 1 },
+  rBeh: { l: '嚴重行為障礙（精神疾病或失智相關）', t: 'chk', L: 2, w: 2 },
+  rTrans: { l: '移位完全依賴他人', t: 'chk', L: 2, w: 3 },
+  rUnpl: { l: '非計畫性開始透析（急診或住院中開始）', t: 'chk', L: 2, w: 2 },
+  rNone: { l: 'REIN 各項皆無', t: 'chk', L: 2 },
   tCp: { l: '嚴重且無法矯正的心臟或肺臟疾病', t: 'chk', L: 3 },
   tInf: { l: '活動性感染（未控制）', t: 'chk', L: 3 },
   tAdh: { l: '無法規則服藥與回診，或持續物質濫用', t: 'chk', L: 3 },
@@ -530,9 +595,44 @@ const F = {
   place: { l: '如果病情走到最後，希望在哪裡', t: 'sel', L: 5, o: [['home', '在家'], ['hosp', '在醫院'], ['undecided', '還沒想過或還不確定']] },
   talked: { l: '已和家人談過自己的期待', t: 'chk', L: 5 },
   choice: { l: '目前傾向的選擇', t: 'sel', L: 6, o: [['hd', '院內血液透析'], ['pd', '腹膜透析'], ['hhd', '居家血液透析'], ['tx', '腎臟移植（同時先選一種透析銜接）'], ['ckm', '腎臟保守治療（不透析）'], ['ttl', '限時嘗試透析'], ['wd', '停止透析，轉安寧照護'], ['cont', '維持目前的治療'], ['undecided', '還需要時間考慮']] },
+  // SURE test © O'Connor & Légaré 2008; Traditional Chinese wording as published by OHRI (translation: TMU Cochrane Taiwan Center & JCT)
+  sure1: { l: '您是否對您的最佳選擇感到確定？', t: 'sel', L: 6, o: [['y', '是'], ['n', '否']] },
+  sure2: { l: '您是否知道每個選項的好處與風險？', t: 'sel', L: 6, o: [['y', '是'], ['n', '否']] },
+  sure3: { l: '您是否清楚哪些好處與風險對您是最重要的？', t: 'sel', L: 6, o: [['y', '是'], ['n', '否']] },
+  sure4: { l: '您是否有得到足夠的幫助、意見和支持去做選擇？', t: 'sel', L: 6, o: [['y', '是'], ['n', '否']] },
   when: { l: '下次討論或決定的時間', t: 'sel', L: 6, o: [['now', '今天已決定'], ['2w', '2 週內'], ['1m', '1 個月內'], ['3m', '3 個月內，或腎功能變化時']] }
 };
-const COMORB = ['cChf', 'cCa', 'cPad', 'cLung', 'cCva', 'cLiver'];
+const COMORB = ['ccMi', 'ccChf', 'ccPvd', 'ccCvd', 'ccCopd', 'ccCtd', 'ccPud', 'ccLiv1', 'ccDm', 'ccDm2', 'ccHemi', 'ccTum', 'ccLeuk', 'ccLymph', 'ccLiv3', 'ccMets', 'ccAids'];
+const SURE = ['sure1', 'sure2', 'sure3', 'sure4'];
+const REIN = ['rBmi', 'rDm', 'rChf', 'rPvd', 'rArr', 'rCa', 'rBeh', 'rTrans', 'rUnpl'];
+// REIN score (Couchoud 2009, ≥75 y starting dialysis): 6-month mortality in the validation sample; c-statistic 0.70
+function rein(s) {
+  if (!REIN.some(k => s[k]) && !s.rNone) return null;
+  const sc = REIN.filter(k => s[k]).reduce((a, k) => a + F[k].w, 0);
+  const m = sc === 0 ? 8 : sc === 1 ? 10 : sc === 2 ? 17 : sc <= 4 ? 21 : sc <= 6 ? 33 : sc <= 8 ? 50 : 70;
+  return { score: sc, mort6: m };
+}
+
+/* modified Charlson comorbidity index (RPA 2010 Tool 6-2, Beddhu 2000): renal disease 2 for everyone here (minimum 4 with diabetes);
+   dementia from the cognition field; hierarchies keep only the higher of DM/DM+organ damage, mild/moderate-severe liver, tumour/metastatic;
+   age: 1 point per full decade over 40 */
+function charlson(s, age) {
+  const parts = [];
+  const add = (l, w) => parts.push([l, w]);
+  COMORB.forEach(c => {
+    if (!s[c]) return;
+    if (c === 'ccDm' && s.ccDm2) return;
+    if (c === 'ccLiv1' && s.ccLiv3) return;
+    if (c === 'ccTum' && s.ccMets) return;
+    if (c === 'ccDm') { add('糖尿病（腎臟病合併糖尿病，修正版計 2）', 2); return; }
+    add(F[c].l, F[c].w);
+  });
+  if (s.dem === 'mild' || s.dem === 'sev') add('失智', 1);
+  add('中重度腎臟病（本工具所有病人）', 2);
+  const base = parts.reduce((a, p) => a + p[1], 0);
+  const ap = age === null ? null : Math.max(0, Math.floor((age - 40) / 10));
+  return { parts, base, agePts: ap, total: ap === null ? null : base + ap };
+}
 const TXCI = ['tCp', 'tInf', 'tAdh'];
 const ABD = ['aSurg', 'aHernia', 'aOstomy', 'aPkd'];
 
@@ -592,8 +692,13 @@ function derive(s) {
   d.alb = num(s.alb);
   d.onDial = s.stage === 'hd' || s.stage === 'pd';
   d.pre = s.stage === 'ckd' || s.stage === 'graft';
-  d.nComorb = COMORB.filter(c => s[c]).length;
-  d.highComorb = d.nComorb >= 2 || !!s.cCa;
+  d.kps = num(s.kps);
+  d.cci = charlson(s, d.age);
+  d.cciKnown = COMORB.some(c => s[c]) || !!s.cNone;
+  d.highComorb = d.cciKnown && d.cci.total !== null && d.cci.total >= TH.cciHigh;
+  d.cancer = !!(s.ccTum || s.ccMets || s.ccLeuk || s.ccLymph);
+  d.reinApplies = d.age !== null && d.age >= 75 && s.stage === 'ckd';
+  d.rein = d.reinApplies ? rein(s) : null;
   d.txCI = TXCI.filter(c => s[c]);
   d.abd = ABD.filter(c => s[c]);
   return d;
@@ -603,16 +708,17 @@ function derive(s) {
 function prognosis(s, d) {
   const crit = [];   // RPA Rec 6 criteria
   if (s.sq === 'no') crit.push('意外問題：不會意外');
-  if (d.highComorb) crit.push('高共病負擔');
-  if (s.func === 'dep') crit.push('功能明顯受損');
+  if (d.highComorb) crit.push(`高共病負擔（Charlson ${d.cci.total} ≥${TH.cciHigh}）`);
+  if (d.kps !== null && d.kps < TH.rpaKps) crit.push(`功能明顯受損（KPS ${d.kps} <${TH.rpaKps}）`);
   if (d.alb !== null && d.alb < TH.rpaAlb) crit.push(`嚴重營養不良（白蛋白 <${TH.rpaAlb}）`);
   const flags = [...crit];
   if (s.dem === 'sev') flags.push('中重度失智');
   if (s.nh) flags.push('住長照機構');
-  if (s.func === 'some') flags.push('部分依賴');
+  if (d.kps !== null && d.kps >= TH.rpaKps && d.kps <= 60) flags.push(`需他人協助（KPS ${d.kps}）`);
   if (d.alb !== null && d.alb >= TH.rpaAlb && d.alb < TH.albLow) flags.push(`白蛋白 <${TH.albLow}`);
   if (d.age !== null && d.age >= 80) flags.push('年齡 ≥80');
-  const known = !!(s.sq && s.func);
+  if (d.rein && d.rein.mort6 >= 33) flags.push(`REIN ${d.rein.score} 分（開始透析 6 個月死亡率約 ${d.rein.mort6}%）`);
+  const known = !!(s.sq && s.kps);
   const rpa = d.age !== null && d.age >= TH.rpaAge && crit.length >= 2;
   const level = !known ? null : rpa || (crit.length >= 2) ? 'poor' : flags.length ? 'guarded' : 'good';
   return { crit, flags, rpa, level, known };
@@ -689,7 +795,7 @@ function options(s, d, P) {
     else if (P.rpa) { st = 'no'; w.push('預期餘命有限：手術與抗排斥藥物的風險大於好處'); }
     else {
       if (d.txCI.length) { st = 'eval'; w.push('目前有移植障礙：' + d.txCI.map(c => F[c].l).join('、') + '；問題解決後可再評估'); }
-      if (s.cCa) { st = 'eval'; w.push('活動性癌症：需治療完成並觀察一段時間'); }
+      if (d.cancer) { st = 'eval'; w.push('近 5 年內惡性腫瘤：依癌別需治療完成並觀察一段時間'); }
       if (poor && st === 'ok') { st = 'eval'; w.push('預後指標不佳：需移植團隊評估'); }
       if (d.age !== null && d.age >= 70 && st === 'ok') w.push('年齡本身不是禁忌，但需完整心肺評估');
       if (s.donor === 'yes') w.push(d.pre ? '有活體捐贈者：可爭取先發性移植（不必先透析）' : '有活體捐贈者：等待時間短、效果最好');
@@ -768,8 +874,9 @@ function asks(s, d, P) {
   need('base', '目前的階段', '先確認病人處在哪個時間點：尚未透析、已在透析，或移植腎衰退，可討論的選項不同。', ['age', 'stage', 'cap'], filled(s, 'age') && filled(s, 'stage') && filled(s, 'cap'));
   if (!s.stage) return A;
   if (d.pre) need('kidney', '腎功能與急迫性', '決定還有多少時間：eGFR <15、KFRE 2 年 >40% 或明顯尿毒症狀，表示需要盡快完成選擇與準備。', ['egfr', 'sx'], filled(s, 'egfr') && filled(s, 'sx'));
-  need('prog', '健康狀況與預後', '預後決定透析能帶來多少好處；年長且多項預後不良者，保守治療應該被充分討論。', ['sq', 'func', 'dem', 'alb'], filled(s, 'sq') && filled(s, 'func') && filled(s, 'dem'));
-  need('comorb', '重大共病', '≥2 項重大共病屬「高共病負擔」（RPA 預後指標之一），也影響移植評估。', [...COMORB, 'nh', 'cNone'], anyChk(s, COMORB, 'cNone'));
+  need('prog', '健康狀況與預後', '預後決定透析能帶來多少好處。RPA 指引的四項指標：意外問題、Charlson 共病、KPS、白蛋白；年長且 ≥2 項不良者，保守治療應該被充分討論。', ['sq', 'kps', 'dem', 'alb'], filled(s, 'sq') && filled(s, 'kps') && filled(s, 'dem'));
+  need('comorb', 'Charlson 共病指數', `勾選所有病史，系統自動加上腎臟病 2 分與年齡分數；≥${TH.cciHigh} 分屬 RPA 的「高共病負擔」，也影響移植評估。`, [...COMORB, 'nh', 'cNone'], anyChk(s, COMORB, 'cNone'));
+  if (d.reinApplies) need('rein', 'REIN 分數（≥75 歲，準備開始透析）', '已驗證的工具：估計若開始透析，6 個月內的死亡率（法國 REIN 登錄，c 統計量 0.70）。', [...REIN, 'rNone'], REIN.some(k => s[k]) || !!s.rNone, { pri: 'later' });
   if (!P.rpa) need('txc', '腎臟移植的可行性', '年齡本身不是禁忌；這些情況需先處理。有活體捐贈者可大幅縮短等待。', [...TXCI, 'tNo', 'tNone', 'donor'], anyChk(s, [...TXCI, 'tNo'], 'tNone') && (filled(s, 'donor') || !!s.tNo));
   need('homec', '居家治療條件', '腹膜透析與居家血液透析需要可用的腹腔、操作能力或協助者，以及合適的居家空間。', [...ABD, 'aNone', 'self', 'home', 'far', 'work'], anyChk(s, ABD, 'aNone') && filled(s, 'self') && filled(s, 'home'));
   const vt = Object.values(s._v || {}).some(x => num(x));
@@ -777,12 +884,13 @@ function asks(s, d, P) {
   const qz = quiz(s);
   need('quiz', '確認病人理解', `用「理解確認」分頁的 ${qz.n} 題是非題，確認病人與家屬理解關鍵事實。`, [], qz.answered >= qz.n, { link: 'quiz', pri: 'later' });
   need('acpc', '預立醫療的現況', '透析病人不論選哪條路，都建議同時討論預立醫療照護計畫。', ['dnr', 'acp', 'agent', 'place', 'talked'], filled(s, 'dnr') && filled(s, 'acp') && filled(s, 'agent') && filled(s, 'place'));
-  need('dec', '記錄決定', '可以是「還需要時間」：記下下次討論的時間點。', ['choice', 'when'], filled(s, 'choice') && filled(s, 'when'));
+  need('dec', '記錄病人的選擇', '可以是「還需要時間」：記下下次討論的時間點。系統會結合醫療可行性與價值契合度，在「綜合建議」分頁提出建議與執行路徑。', ['choice', 'when'], filled(s, 'choice') && filled(s, 'when'));
+  if (s.choice && s.choice !== 'undecided') need('sure', 'SURE 決策準備度', '請病人回答這 4 題；任何一題回答「否」代表仍有決策衝突，不宜今天定案。', SURE, SURE.every(k => filled(s, k)));
   return A;
 }
 
 /* ---------- path ---------- */
-function path(s, d, P, Q) {
+function path(s, d, P, Q, rec, plan) {
   const vt = Object.values(s._v || {}).some(x => num(x));
   const st = [
     { t: '確認階段與決策能力', done: filled(s, 'stage') && filled(s, 'cap') },
@@ -792,7 +900,8 @@ function path(s, d, P, Q) {
     { t: '價值澄清', done: vt },
     { t: '理解確認', done: Q.answered >= Q.n, x: Q.answered ? `${Q.right}/${Q.n} 題正確` : '' },
     { t: '預立醫療照護計畫', done: filled(s, 'dnr') && filled(s, 'acp') && filled(s, 'agent') },
-    { t: '決定與追蹤', done: filled(s, 'choice') && filled(s, 'when') }
+    { t: '病人的選擇與決策準備度', done: filled(s, 'choice') && filled(s, 'when') && (s.choice === 'undecided' || rec.sure.done), x: rec.sure.done ? `SURE ${rec.sure.yes}/4` : '' },
+    { t: '執行路徑', done: plan.length > 0 && plan.every(p => p.n === p.steps.length), x: plan.length ? plan.map(p => `${p.t} ${p.n}/${p.steps.length}`).join('；') : '' }
   ];
   const i = st.findIndex(x => !x.done && !x.skip);
   if (i >= 0) st[i].now = true;
@@ -810,6 +919,158 @@ function nodes(s, d, P) {
   return n;
 }
 
+/* ---------- care pathways (what happens after the choice) ---------- */
+// pre: only before dialysis has started
+const PATHS = {
+  hd: [
+    { id: 'vein', t: '保護非慣用手的血管：不在該手抽血、打點滴或放置 PICC', pre: true },
+    { id: 'surg', t: '轉介血管通路外科，超音波評估動靜脈', pre: true },
+    { id: 'avf', t: '建立動靜脈瘻管：建議在預計開始透析前約 6 個月；瘻管成熟通常需 6 週以上，人工血管約 2–3 週後可用', pre: true },
+    { id: 'hbv', t: '檢驗 B 型肝炎表面抗體，陰性者接種疫苗', pre: true },
+    { id: 'unit', t: '選擇透析院所與時段，安排交通（社工可協助）' },
+    { id: 'diet', t: '營養師衛教：水分、鉀、磷、鹽' },
+    { id: 'card', t: '開始定期透析後申請重大傷病證明' },
+    { id: 'review', t: '每年再檢視：移植、居家透析、預立醫療' }
+  ],
+  pd: [
+    { id: 'abd', t: '腹部評估：疝氣先修補，確認沒有嚴重沾黏', pre: true },
+    { id: 'home', t: '居家訪視：治療空間、耗材存放、清潔與照明' },
+    { id: 'cath', t: '放置腹膜透析導管；傷口癒合後再開始使用（可行時約 2 週）', pre: true },
+    { id: 'mode', t: '選擇手動換液（CAPD）或機器腹膜透析（APD）' },
+    { id: 'train', t: '病人或照顧者訓練（約 1–2 週）：無菌換液、出口處照護、紀錄' },
+    { id: 'perit', t: '認識腹膜炎警訊：透析液混濁、腹痛、發燒 → 立即回診' },
+    { id: 'supply', t: '安排藥水與耗材定期配送' },
+    { id: 'card', t: '申請重大傷病證明' },
+    { id: 'review', t: '定期門診與腹膜功能評估；每年再檢視移植與預立醫療' }
+  ],
+  hhd: [
+    { id: 'elig', t: '確認符合健保居家血液透析試辦計畫：同住照顧者、固定居所、無排除條件' },
+    { id: 'ref', t: '轉介參與試辦計畫的院所' },
+    { id: 'avf', t: '建立動靜脈瘻管（預計開始前約 6 個月）', pre: true },
+    { id: 'home', t: '居家評估：機器擺放、水電與排水、耗材空間' },
+    { id: 'train', t: '病人與協助者訓練（數週）：自我扎針、機器操作、警報處理' },
+    { id: 'emerg', t: '緊急應變計畫：停電、出血、針頭脫落、聯絡窗口' },
+    { id: 'review', t: '定期回院評估透析品質與通路' }
+  ],
+  tx: [
+    { id: 'ref', t: '轉介移植門診（eGFR <30 即可轉介）' },
+    { id: 'work', t: '移植前評估：心肺功能、癌症篩檢、感染（B／C 肝、HIV、結核）、牙科、組織配對與抗體' },
+    { id: 'donor', t: '活體捐贈者評估：由獨立團隊評估捐贈者的健康與自願性', donor: true },
+    { id: 'list', t: '由移植醫院協助登錄大愛（屍腎）等候，定期更新資料' },
+    { id: 'bridge', t: '同時準備銜接的透析模式（見下方）' },
+    { id: 'meds', t: '衛教：終身服用抗排斥藥、感染與皮膚癌預防' },
+    { id: 'review', t: '每年更新移植評估' }
+  ],
+  ckm: [
+    { id: 'hosp', t: '照會安寧共同照護（符合健保收案條件時）' },
+    { id: 'sx', t: '症狀評估與處理計畫：搔癢、疲倦、噁心、喘、水腫、失眠、疼痛' },
+    { id: 'med', t: '持續腎臟科照護：貧血、酸中毒、高血鉀、水分；減少不必要的藥物與抽血' },
+    { id: 'diet', t: '營養師：飲食以舒適和生活品質為主' },
+    { id: 'acp', t: '完成 DNR／ACP／AD，指定醫療委任代理人' },
+    { id: 'home', t: '連結居家醫療或居家安寧，確認照顧人力與輔具' },
+    { id: 'crisis', t: '預先談好病情變化時的處置與聯絡方式，避免不必要的急診與插管' },
+    { id: 'review', t: '定期再評估；病人改變心意時可再討論透析' }
+  ],
+  ttl: [
+    { id: 'goal', t: '寫下要觀察的目標：體力、住院次數、症狀、病人自己的感受' },
+    { id: 'date', t: '約定期限與檢視日期（例如 1–3 個月）' },
+    { id: 'plan', t: '事先談好未達目標時的後續：轉保守治療或停止透析' },
+    { id: 'dnr', t: '同時討論 DNR 與急救意願' },
+    { id: 'start', t: '以銜接模式開始透析（見下方）' },
+    { id: 'meet', t: '到期召開家庭會議，一起決定繼續或停止' }
+  ],
+  wd: [
+    { id: 'cap', t: '確認決策能力；評估並處理憂鬱、疼痛、感染或透析不足等可逆原因' },
+    { id: 'fam', t: '家庭會議：病人、家屬、腎臟科、安寧團隊、社工' },
+    { id: 'law', t: '完成法定文件：兩位相關專科醫師判定末期；本人意願書、最近親屬同意書，或依 AD' },
+    { id: 'hosp', t: '照會安寧，轉安寧病房或居家安寧' },
+    { id: 'orders', t: '預開症狀處理醫囑：喘、躁動、疼痛、噁心、搔癢、分泌物' },
+    { id: 'fluid', t: '調整水分與飲食；停止不必要的藥物與抽血' },
+    { id: 'grief', t: '家屬支持與悲傷關懷' }
+  ],
+  cont: [
+    { id: 'adeq', t: '檢視透析是否足夠、症狀與生活品質' },
+    { id: 'mod', t: '再評估是否適合換模式（居家治療、血液／腹膜互換）' },
+    { id: 'tx', t: '再評估移植資格' },
+    { id: 'acp', t: '更新預立醫療文件' },
+    { id: 'review', t: '訂下次再評估日期' }
+  ]
+};
+const DIAL = ['hd', 'pd', 'hhd'];
+
+/* ---------- recommendation: medical feasibility × patient's values × patient's choice ---------- */
+function sureScore(s) {
+  const a = SURE.filter(k => s[k]);
+  return { answered: a.length, yes: a.filter(k => s[k] === 'y').length, done: a.length === SURE.length };
+}
+function recommend(s, d, P, O, Fz) {
+  const r = { status: null, primary: null, bridge: null, alt: null, notes: [], sure: sureScore(s) };
+  if (!O.length) return r;
+  const score = id => { const f = Fz && Fz.rows.find(x => x.id === id); return f ? f.score : null; };
+  const W = { ok: 1, eval: 0.85 };
+  const rank = O.filter(o => o.st !== 'no' && (FIT[o.id] || o.id === 'wd'))
+    .map(o => ({ o, v: (score(o.id) === null ? 50 : score(o.id)) * W[o.st] }))
+    .sort((a, b) => b.v - a.v).map(x => x.o);
+  const bestDial = () => {
+    const c = O.filter(o => DIAL.includes(o.id) && o.st !== 'no');
+    if (!c.length) return null;
+    return c.slice().sort((a, b) => ((score(b.id) ?? 50) * W[b.st]) - ((score(a.id) ?? 50) * W[a.st]))[0];
+  };
+  let c = s.choice;
+  if (c === 'cont') c = s.stage === 'hd' ? 'hd' : s.stage === 'pd' ? 'pd' : null;
+  if (c === 'ckm' && d.onDial) c = 'wd';
+  if (c === 'wd' && !d.onDial) c = 'ckm';
+  const top = Fz ? rank[0] : null;
+
+  if (!c || c === 'undecided') {
+    if (!top) { r.status = 'need'; r.notes.push('先完成價值澄清，或記錄病人的選擇，系統才能提出建議。'); return r; }
+    r.status = 'suggest'; r.primary = top;
+    r.notes.push(`病人尚未決定：依醫療可行性與價值契合度，最契合的是「${top.t}」，請與病人確認。`);
+  } else {
+    let o = O.find(x => x.id === c);
+    if (!o && c === 'ttl') o = { id: 'ttl', t: OPT.ttl.t, st: 'ok', why: ['預後尚可時較少需要限時嘗試，但仍可依病人意願採用'] };
+    if (!o) { r.status = 'need'; return r; }
+    if (o.st === 'no') {
+      r.status = 'conflict';
+      // keep the alternative in the same family: a different dialysis modality for a dialysis choice
+      r.primary = (DIAL.includes(o.id) && bestDial()) || rank[0] || null;
+      r.notes.push(`病人選擇「${o.t}」，但目前醫療上不建議：${o.why.join('；')}。`);
+      if (r.primary) r.notes.push(`${DIAL.includes(o.id) ? '可行的透析方式中' : '可行選項中'}最符合病人價值的是「${r.primary.t}」。請再與病人和家屬討論，必要時尋求第二意見。`);
+    } else {
+      r.status = o.st === 'ok' ? 'ok' : 'eval';
+      r.primary = o;
+      if (o.st === 'eval') {
+        r.notes.push(`病人選擇「${o.t}」，需先完成評估：${o.why.join('；')}。`);
+        r.alt = rank.find(x => x.st === 'ok' && x.id !== o.id) || null;
+        if (r.alt) r.notes.push(`若評估後不可行，下一個最契合的是「${r.alt.t}」。`);
+      } else r.notes.push(`病人選擇「${o.t}」，醫療上可行。`);
+      if (top && top.id !== o.id && score(top.id) !== null && score(o.id) !== null && score(top.id) - score(o.id) >= 20)
+        r.notes.push(`這個選擇與病人價值契合度最高的「${top.t}」差距較大（${score(o.id)}% vs ${score(top.id)}%），可確認是否有未說出的考量（家人、經濟、恐懼）。`);
+    }
+  }
+  const p = r.primary;
+  if (p && (p.id === 'tx' || p.id === 'ttl')) {
+    r.bridge = bestDial();
+    if (p.id === 'tx' && d.pre && s.donor === 'yes') r.notes.push('有活體捐贈者且尚未透析：以先發性移植為目標；若來不及，再以銜接模式開始透析。');
+  }
+  if (p && DIAL.includes(p.id) && P.level === 'poor') r.notes.push('預後不良：建議以「限時嘗試」的方式開始，約定目標與檢視日期。');
+  if (r.sure.done && r.sure.yes < 4) { r.ready = false; r.notes.push(`SURE ${r.sure.yes}/4：有決策衝突，建議不要今天定案，針對回答「否」的項目再約一次討論。`); }
+  else r.ready = r.sure.done && ['ok', 'eval'].includes(r.status);
+  return r;
+}
+function pathway(s, d, rec) {
+  if (!rec.primary || !['ok', 'eval', 'suggest', 'conflict'].includes(rec.status)) return [];
+  const isCont = s.choice === 'cont' || (rec.primary.cur && d.onDial);
+  const ids = [isCont ? 'cont' : rec.primary.id];
+  if (rec.bridge) ids.push(rec.bridge.id);
+  const done = s._st || {};
+  return ids.map((id, i) => {
+    const steps = PATHS[id].filter(x => (!x.pre || d.pre) && (!x.donor || s.donor === 'yes' || s.donor === 'maybe'))
+      .map(x => ({ key: `${id}.${x.id}`, t: x.t, done: done[`${id}.${x.id}`] || null }));
+    return { id, t: id === 'cont' ? '維持目前透析' : OPT[id].t, role: i ? '銜接模式' : '主要路徑', steps, n: steps.filter(x => x.done).length };
+  });
+}
+
 const LAB = (id, v) => { const f = F[id]; const o = f && f.o && f.o.find(o => o[0] === v); return o ? o[1] : v; };
 const today = () => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; };
 
@@ -819,7 +1080,10 @@ function evaluate(s) {
   const P = prognosis(s, d);
   const O = s.stage ? options(s, d, P) : [];
   const Q = quiz(s);
-  return { d, P, timing: timing(s, d, P), opts: O, fit: s.stage ? fit(s, P, O) : null, quiz: Q, acp: s.stage ? acp(s, d, P) : [], asks: asks(s, d, P), pending: (s._pending || []).slice(), path: path(s, d, P, Q), nodes: nodes(s, d, P) };
+  const Fz = s.stage ? fit(s, P, O) : null;
+  const rec = recommend(s, d, P, O, Fz);
+  const plan = pathway(s, d, rec);
+  return { d, P, timing: timing(s, d, P), opts: O, fit: Fz, quiz: Q, rec, plan, acp: s.stage ? acp(s, d, P) : [], asks: asks(s, d, P), pending: (s._pending || []).slice(), path: path(s, d, P, Q, rec, plan), nodes: nodes(s, d, P) };
 }
 
 function summary(s, date) {
@@ -827,6 +1091,13 @@ function summary(s, date) {
   const L = [`【末期腎臟病 SDM 紀錄】${date || today()}`];
   L.push(`階段：${s.stage ? LAB('stage', s.stage) : '未填'}${d.age !== null ? `；${d.age} 歲` : ''}${d.egfr !== null ? `；eGFR ${d.egfr}` : ''}${d.kfre !== null ? `；KFRE 2 年 ${d.kfre}%` : ''}`);
   if (s.cap) L.push(`決策能力：${LAB('cap', s.cap)}`);
+  const pr = [];
+  if (s.sq) pr.push(`意外問題：${LAB('sq', s.sq)}`);
+  if (d.kps !== null) pr.push(`KPS ${d.kps}`);
+  if (d.cciKnown && d.cci.total !== null) pr.push(`Charlson ${d.cci.total}（共病 ${d.cci.base}＋年齡 ${d.cci.agePts}）`);
+  if (d.alb !== null) pr.push(`白蛋白 ${d.alb}`);
+  if (d.rein) pr.push(`REIN ${d.rein.score} 分（開始透析 6 個月死亡率約 ${d.rein.mort6}%）`);
+  if (pr.length) L.push('預後指標：' + pr.join('；'));
   if (P.known) L.push(`預後：${{ good: '無明顯不利因素', guarded: '有不利因素', poor: '預後不良' }[P.level]}${P.flags.length ? '（' + P.flags.join('、') + '）' : ''}${P.rpa ? '；符合 RPA 可考慮不透析條件' : ''}`);
   if (R.timing) L.push(`時程：${R.timing.t}`);
   if (R.opts.length) L.push('已討論選項：' + R.opts.map(o => `${o.t}（${{ ok: '可行', eval: '需評估', no: '不建議' }[o.st]}）`).join('、'));
@@ -841,13 +1112,16 @@ function summary(s, date) {
   if (s.agent) ac.push('醫療委任代理人：' + LAB('agent', s.agent));
   if (s.place) ac.push('期望臨終地點：' + LAB('place', s.place));
   if (ac.length) L.push('預立醫療：' + ac.join('；'));
-  if (s.choice) L.push(`決定：${LAB('choice', s.choice)}${s.when ? '；' + LAB('when', s.when) : ''}`);
+  if (s.choice) L.push(`病人選擇：${LAB('choice', s.choice)}${s.when ? '；' + LAB('when', s.when) : ''}`);
+  if (R.rec.sure.done) L.push(`SURE：${R.rec.sure.yes}/4${R.rec.sure.yes < 4 ? '（有決策衝突）' : ''}`);
+  if (R.rec.primary) L.push(`綜合建議：${{ ok: '依病人選擇', eval: '依病人選擇，待評估', suggest: '建議（待病人確認）', conflict: '病人選擇不建議，替代為' }[R.rec.status]}「${R.rec.primary.t}」${R.rec.bridge ? `；銜接「${R.rec.bridge.t}」` : ''}${R.rec.alt ? `；備案「${R.rec.alt.t}」` : ''}`);
+  R.plan.forEach(p => { const left = p.steps.filter(x => !x.done).map(x => x.t.split('：')[0]); L.push(`${p.role}（${p.t}）：已完成 ${p.n}/${p.steps.length}${left.length ? '；待辦：' + left.join('、') : ''}`); });
   const todo = R.acp.filter(i => i.c !== 'stop').map(i => i.t);
   if (todo.length) L.push('後續：' + todo.join('；'));
   return L.join('\n');
 }
 
-const api = { TH, LAYERS, F, OPT, VALS, FIT, QUIZ, COMORB, TXCI, ABD, filled, evaluate, summary, today };
+const api = { TH, LAYERS, F, OPT, VALS, FIT, QUIZ, COMORB, TXCI, ABD, SURE, REIN, PATHS, charlson, rein, filled, evaluate, summary, today };
 if (typeof module !== 'undefined') module.exports = api;
 return api;
 })();
@@ -886,6 +1160,22 @@ const TALK = [
   ['決定可以改', '「今天不用決定。決定之後也可以再改，我們會定期一起檢視。」']
 ];
 
+/* validity status of every instrument on the page (shown in the references tab) */
+const VALID = [
+  ['意外問題（Surprise Question）', '預後', '已驗證（預測力中等）', '透析病人：「不會意外」組 1 年死亡率 29.4% vs 10.6%（OR 3.5）。跨疾病統合分析：敏感度約 67–71%、特異度 74–80%，陽性預測值僅約 37%，單獨使用會高估死亡風險。'],
+  ['Karnofsky 功能狀態（KPS）', '預後', '已驗證', '1949 年發表；評分者間信度良好（Schag 1984），在高齡門診病人可預測預後。RPA 以 KPS <40 為功能明顯受損。'],
+  ['修正版 Charlson 共病指數', '預後', '已驗證', '透析病人每多 1 分，死亡風險 ×1.24（Beddhu 2000，n=268）；Hemmelgarn 2003 在新進透析病人驗證。依 RPA 工具 6-2：腎臟病 2 分（合併糖尿病至少 4 分），40 歲以上每滿 10 歲加 1 分；≥8 分約對應 50% 的 1 年死亡率。'],
+  ['REIN 分數', '預後（≥75 歲開始透析）', '已驗證（內部驗證）', '法國 REIN 登錄 ≥75 歲開始透析者；驗證組 c 統計量 0.70，0 分 6 個月死亡率 8%，≥9 分 70%。未找到獨立外部驗證，也未在台灣驗證。'],
+  ['血清白蛋白', '預後', '客觀檢驗', '低白蛋白是透析病人死亡的獨立預測因子；RPA 以 <2.5 g/dL 為嚴重營養不良。'],
+  ['RPA 第 6 項建議（≥75 歲＋≥2 項）', '是否考慮不透析', '專家共識，未經前瞻驗證', '這是指引的判斷規則，不是經過驗證的預測模型；只用來提示「應充分討論保守治療」，不用來替病人做決定。'],
+  ['KFRE（腎衰竭風險方程式）', '時程', '已驗證（30 多國外部驗證）', '適用 eGFR 15–60；本頁只接收外部計算結果。'],
+  ['可行性判斷（PD／HHD／移植）', '選項篩選', '依指引整理的臨床規則', '依 ISPD、KDIGO 移植候選人指引與健保試辦計畫的收案條件整理，沒有獨立驗證。'],
+  ['價值澄清 9 項與特性對照', '偏好', '未驗證（教學性近似）', '項目參考醫策會公版 PDA 與文獻常見考量自行整理；特性分數是作者依衛教資料給的近似值。只用來引導討論，不是量表。'],
+  ['綜合建議演算法', '建議', '未驗證', '透明的規則：排除不建議選項 → 尊重病人在可行範圍內的選擇 → 未決定時以價值契合度排序。'],
+  ['理解確認 10 題', '知識', '僅內容效度（未做心理計量）', '依指引內容撰寫，用來找出需要再解釋的地方，不能當作知識分數比較。已驗證的腎臟知識量表 KiKS（28 題，KR-20 0.72）測的是一般 CKD 知識而非透析模式，且無驗證過的中文版。'],
+  ['SURE 決策衝突篩檢', '決策品質', '已驗證（英文／法文版）', 'KR-20 0.70；≤3 分相對 DCS >37.5 敏感度 94%、特異度 90%（Ferron Parayre 2014）。本頁使用 OHRI 公布的繁體中文官方譯本（北醫考科藍中心與醫策會翻譯）；中文版尚未見心理計量驗證。']
+];
+
 const REFS = [
   ['Kidney Disease: Improving Global Outcomes (KDIGO) CKD Work Group. KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease. Kidney Int 2024;105(4S):S117–S314（Rec 2.2.1；PP 2.2.1–2.2.3、5.3–5.5）.', 'https://doi.org/10.1016/j.kint.2023.10.018'],
   ['Chadban SJ, et al. KDIGO Clinical Practice Guideline on the Evaluation and Management of Candidates for Kidney Transplantation. Transplantation 2020;104(4S1):S11–S103.', 'https://doi.org/10.1097/TP.0000000000003136'],
@@ -903,6 +1193,12 @@ const REFS = [
   ['Wolfe RA, Ashby VB, Milford EL, et al. Comparison of mortality in all patients on dialysis, patients on dialysis awaiting transplantation, and recipients of a first cadaveric transplant. N Engl J Med 1999;341:1725–1730.', 'https://doi.org/10.1056/NEJM199912023412303'],
   ['Mehrotra R, et al. Similar outcomes with hemodialysis and peritoneal dialysis in patients with end-stage renal disease. Arch Intern Med 2011;171:110–118.', 'https://doi.org/10.1001/archinternmed.2010.352'],
   ['O\'Connor NR, et al. Survival after dialysis discontinuation and hospice enrollment for ESRD. Clin J Am Soc Nephrol 2013;8:2117–2122.', 'https://doi.org/10.2215/CJN.04110413'],
+  ['Charlson ME, et al. A new method of classifying prognostic comorbidity in longitudinal studies. J Chronic Dis 1987;40:373–383.', 'https://doi.org/10.1016/0021-9681(87)90171-8'],
+  ['Beddhu S, et al. A simple comorbidity scale predicts clinical outcomes and costs in dialysis patients. Am J Med 2000;108:609–613.', 'https://doi.org/10.1016/s0002-9343(00)00371-5'],
+  ['Couchoud C, et al. A clinical score to predict 6-month prognosis in elderly patients starting dialysis for end-stage renal disease (REIN). Nephrol Dial Transplant 2009;24:1553–1561.', 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3094349/'],
+  ['Schag CC, et al. Karnofsky performance status revisited: reliability, validity, and guidelines. J Clin Oncol 1984;2:187–193.', 'https://doi.org/10.1200/JCO.1984.2.3.187'],
+  ['Légaré F, et al. Are you SURE? Assessing patient decisional conflict with a 4-item screening test. Can Fam Physician 2010;56:e308–e314；Ferron Parayre A, et al. Med Decis Making 2014;34:54–62.', 'https://doi.org/10.1177/0272989X13491463'],
+  ['Ottawa Hospital Research Institute. Decisional Conflict Scale & SURE test（含繁體中文版，可免費使用）.', 'https://decisionaid.ohri.ca/eval_dcs.html'],
   ['病人自主權利法（2021-01-20 修正；第 8、9、12、14 條）。全國法規資料庫。', 'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020189'],
   ['衛生福利部公告：病人自主權利法第十四條第一項第五款之病人疾病狀況（2020-01-06 公告 11 類；2021-04-13 增列，共 12 類）。', 'https://www.mohw.gov.tw/cp-16-50877-1.html'],
   ['安寧緩和醫療條例（2021-01-20 修正；第 4–7 條）。全國法規資料庫。', 'https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=L0020066'],
@@ -919,7 +1215,7 @@ const REFS = [
 const $ = id => document.getElementById(id);
 const esc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const LS = 'eskd-sdm-case-v1';
-const blank = () => ({ _pending: [], _log: [], _v: {}, _q: {} });
+const blank = () => ({ _pending: [], _log: [], _v: {}, _q: {}, _st: {} });
 let S = (() => { try { const x = JSON.parse(localStorage.getItem(LS)); if (x && typeof x === 'object') return Object.assign(blank(), x); } catch (e) {} return blank(); })();
 const save = () => { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} };
 let R = null;
@@ -979,7 +1275,7 @@ function renderAsks() {
   const card = (a, i) => `<div class="ask ${a.pri === 'later' ? 'later' : ''}" data-ask="${a.key}">
     <div class="ah"><h4>${i === 0 && a.pri !== 'later' ? '▶ ' : ''}${esc(a.t)}</h4>${a.pri === 'later' ? '<span class="pill mute">建議</span>' : ''}</div>
     <p class="why">${esc(a.why)}</p>
-    ${a.link ? `<button class="btn sm primary golink" type="button" data-go="${a.link}">前往「${a.link === 'vals' ? '價值澄清' : '理解確認'}」</button>` : ''}
+    ${a.link ? `<button class="btn sm primary golink" type="button" data-go="${a.link}">前往「${{ vals: '價值澄清', quiz: '理解確認' }[a.link]}」</button>` : ''}
     ${a.fields.some(f => SDM.F[f].t !== 'chk') ? `<div class="fields">${a.fields.filter(f => SDM.F[f].t !== 'chk').map(f => fieldHTML(f, 'ask')).join('')}</div>` : ''}
     ${a.fields.some(f => SDM.F[f].t === 'chk') ? `<div class="checks">${a.fields.filter(f => SDM.F[f].t === 'chk').map(f => fieldHTML(f, 'ask')).join('')}</div>` : ''}
     ${a.key === 'base' ? '' : `<div class="acts"><button class="btn sm" type="button" data-pend="${a.key}" data-title="${esc(a.t)}">待回報</button></div>`}
@@ -997,6 +1293,9 @@ function renderProg() {
     const c = { good: 'go', guarded: 'warn', poor: 'stop' }[P.level];
     const x = [];
     if (P.flags.length) x.push('因素：' + P.flags.join('、'));
+    const dd = R.d;
+    if (dd.cciKnown && dd.cci.total !== null) x.push(`修正版 Charlson：${dd.cci.total} 分（共病 ${dd.cci.base}＋年齡 ${dd.cci.agePts}）；≥8 分在透析病人約對應 50% 的 1 年死亡率。`);
+    if (dd.rein) x.push(`REIN：${dd.rein.score} 分 → 若開始透析，6 個月死亡率約 ${dd.rein.mort6}%（驗證組）。`);
     if (P.rpa) x.push('符合 RPA 指引「可考慮不透析」的條件：≥75 歲，且具 ≥2 項（意外問題「不會意外」、高共病、功能明顯受損、嚴重營養不良）。保守治療應該被充分討論，但仍以病人的選擇為準。');
     else if (P.level === 'poor') x.push('預後不良指標 ≥2 項：透析能延長的時間可能有限，保守治療與限時嘗試透析都應納入討論。');
     else if (P.level === 'guarded') x.push('有不利因素：透析仍可能有幫助，但應同時談預立醫療與保守治療。');
@@ -1024,6 +1323,31 @@ function renderFit() {
   $('fitBox').innerHTML = fitBars(R.fit);
   $('fitBars').innerHTML = S.stage ? fitBars(R.fit) : '<p class="small muted">先在「引導評估」填寫目前階段，才知道哪些選項適用。</p>';
   $('fitTag').textContent = R.fit ? `${R.fit.rows.length} 個選項` : '未作答';
+}
+
+const RECST = { ok: ['go', '依病人選擇'], eval: ['warn', '依病人選擇，待評估'], suggest: ['ev', '建議，待病人確認'], conflict: ['stop', '病人選擇目前不建議'], need: ['mute', '資料不足'] };
+function recHTML(full) {
+  const r = R.rec;
+  if (!r.status) return '<p class="small muted">先在「引導評估」填寫目前階段。</p>';
+  const st = RECST[r.status];
+  let h = '';
+  if (r.primary) h += `<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px"><span class="recp">${esc(r.primary.t)}</span><span class="pill ${st[0]}">${st[1]}</span>${r.ready ? '<span class="pill go">可定案</span>' : ''}</div>`;
+  if (r.bridge) h += `<p class="small">銜接模式：<b>${esc(r.bridge.t)}</b></p>`;
+  if (r.alt) h += `<p class="small">備案：<b>${esc(r.alt.t)}</b></p>`;
+  h += r.notes.map(n => `<p class="small muted" style="margin-top:4px">• ${esc(n)}</p>`).join('');
+  if (!full && r.primary) h += `<div style="margin-top:8px"><button class="btn sm primary" type="button" data-go="plan">看執行路徑</button></div>`;
+  return h;
+}
+function renderPlan() {
+  $('recCard').hidden = !R.rec.status;
+  $('recMini').innerHTML = recHTML(false);
+  $('recBox').innerHTML = recHTML(true);
+  $('recTag').textContent = R.rec.status ? RECST[R.rec.status][1] : '';
+  $('sureBox').innerHTML = ['choice', 'when', ...SDM.SURE].map(f => fieldHTML(f, 'ask')).join('');
+  const P = R.plan;
+  $('planTag').textContent = P.length ? P.map(p => `${p.n}/${p.steps.length}`).join(' · ') : '尚未產生';
+  $('planBox').innerHTML = P.length ? P.map(p => `<div class="pw"><h4><span>${esc(p.role)}：${esc(p.t)}</span><span class="mono small">${p.n}/${p.steps.length}</span></h4>${p.steps.map(x => `<label class="step ${x.done ? 'done' : ''}"><input type="checkbox" data-step="${x.key}" ${x.done ? 'checked' : ''}><span class="tx">${esc(x.t)}</span><span class="dt">${x.done ? new Date(x.done).toLocaleDateString('zh-TW') : ''}</span></label>`).join('')}</div>`).join('')
+    : '<p class="small muted">記錄病人的選擇（或完成價值澄清）後，這裡會列出該模式的準備步驟。</p>';
 }
 
 function renderAcpBox() {
@@ -1068,7 +1392,7 @@ function renderQuiz() {
 function renderAll() {
   const f = focusMark();
   R = SDM.evaluate(S);
-  renderStatus(); renderAsks(); renderProg(); renderOpts(); renderFit(); renderAcpBox(); renderPath(); syncSheet(); renderLog(); renderQuiz(); renderAcpPane();
+  renderStatus(); renderAsks(); renderProg(); renderOpts(); renderFit(); renderPlan(); renderAcpBox(); renderPath(); syncSheet(); renderLog(); renderQuiz(); renderAcpPane();
   save();
   focusRestore(f);
 }
@@ -1078,8 +1402,8 @@ function focusMark() {
   const ae = document.activeElement;
   if (!ae || ae === document.body || !ae.closest) return null;
   const card = ae.closest('#asks .ask');
-  const sel = ae.dataset.f ? `[data-f="${ae.dataset.f}"]` : ae.dataset.pend ? `[data-pend="${ae.dataset.pend}"]` : ae.dataset.qid ? `[data-qid="${ae.dataset.qid}"][data-qa="${ae.dataset.qa}"]` : ae.dataset.v ? `[data-v="${ae.dataset.v}"][data-lv="${ae.dataset.lv}"]` : null;
-  const zone = card ? '#asks' : ae.closest('#sheet') ? '#sheet' : ae.closest('#quizRows') ? '#quizRows' : ae.closest('#valRows') ? '#valRows' : null;
+  const sel = ae.dataset.f ? `[data-f="${ae.dataset.f}"]` : ae.dataset.step ? `[data-step="${ae.dataset.step}"]` : ae.dataset.pend ? `[data-pend="${ae.dataset.pend}"]` : ae.dataset.qid ? `[data-qid="${ae.dataset.qid}"][data-qa="${ae.dataset.qa}"]` : ae.dataset.v ? `[data-v="${ae.dataset.v}"][data-lv="${ae.dataset.lv}"]` : null;
+  const zone = card ? '#asks' : ae.closest('#sheet') ? '#sheet' : ae.closest('#sureBox') ? '#sureBox' : ae.closest('#planBox') ? '#planBox' : ae.closest('#quizRows') ? '#quizRows' : ae.closest('#valRows') ? '#valRows' : null;
   return { sel, zone, key: card && card.dataset.ask, idx: card ? [...document.querySelectorAll('#asks .ask')].indexOf(card) : -1 };
 }
 function focusRestore(m) {
@@ -1095,7 +1419,7 @@ function focusRestore(m) {
 }
 
 /* ---------- input handling ---------- */
-const NONE = { cNone: SDM.COMORB.concat('nh'), tNone: SDM.TXCI.concat('tNo'), aNone: SDM.ABD };
+const NONE = { cNone: SDM.COMORB.concat('nh'), tNone: SDM.TXCI.concat('tNo'), aNone: SDM.ABD, rNone: SDM.REIN };
 function labelOf(id, v) {
   const f = SDM.F[id];
   if (f.t === 'chk') return v ? '勾選' : '取消';
@@ -1118,6 +1442,8 @@ function setField(id, el) {
   setTimeout(renderAll, 0); // let focus land on the next field first
 }
 document.addEventListener('change', e => {
+  const sp = e.target.closest('[data-step]');
+  if (sp) { S._st = S._st || {}; const k = sp.dataset.step; if (sp.checked) S._st[k] = Date.now(); else delete S._st[k]; log(`執行路徑：${sp.closest('.step').querySelector('.tx').textContent.split('：')[0]}${sp.checked ? ' 完成' : ' 取消'}`); setTimeout(renderAll, 0); return; }
   const el = e.target.closest('[data-f]');
   if (el) setField(el.dataset.f, el);
 });
@@ -1151,7 +1477,7 @@ function copyText(t) {
 let tt; function toast(m) { const el = $('toast'); el.textContent = m; el.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('show'), 1800); }
 
 /* tabs */
-const TABS = ['ws', 'opts', 'vals', 'quiz', 'acp', 'algo', 'cases', 'ref'];
+const TABS = ['ws', 'opts', 'vals', 'quiz', 'plan', 'acp', 'algo', 'cases', 'ref'];
 function showTab(t) {
   TABS.forEach(x => { $(x).hidden = x !== t; $('tab-' + x).setAttribute('aria-selected', x === t); $('tab-' + x).tabIndex = x === t ? 0 : -1; });
   try { localStorage.setItem(LS + '-tab', t); } catch (e) {}
@@ -1206,12 +1532,13 @@ function renderAcpPane() {
 /* ---------- example cases ---------- */
 const NOC = { tNone: true, aNone: true };
 const CASES = [
-  { t: '透析前，年輕上班族', d: '45 歲，IgA 腎病變，eGFR 13，仍在上班。生活自理，太太願意評估捐腎。', s: { age: 45, stage: 'ckd', cap: 'yes', egfr: 13, sx: 'mild', sq: 'yes', func: 'indep', dem: 'none', alb: 4.0, cNone: true, tNone: true, donor: 'yes', aNone: true, self: 'self', home: 'ok', work: true, far: true } },
-  { t: '透析前，高齡多重共病', d: '84 歲，糖尿病腎病變 eGFR 9，心衰竭、截肢後，日常生活多需協助，白蛋白 2.4。主治醫師「不會意外」。', s: { age: 84, stage: 'ckd', cap: 'help', egfr: 9, sx: 'mild', sq: 'no', func: 'dep', dem: 'mild', alb: 2.4, cChf: true, cPad: true, donor: 'no', aNone: true, self: 'helper', home: 'ok' } },
-  { t: '預後不確定：限時嘗試', d: '78 歲，eGFR 11，輕度失智，部分需協助，白蛋白 3.2。家人希望「試試看」，病人猶豫。', s: { age: 78, stage: 'ckd', cap: 'help', egfr: 11, sx: 'mild', sq: 'no', func: 'some', dem: 'mild', alb: 3.2, cCva: true, donor: 'no', aSurg: true, self: 'helper', home: 'ok' } },
-  { t: '血液透析中，考慮停止', d: '80 歲，透析 4 年，近半年反覆住院，現在臥床、進食差，白蛋白 2.3，本人說「不想再洗了」。', s: { age: 80, stage: 'hd', cap: 'yes', sq: 'no', func: 'dep', dem: 'none', alb: 2.3, cChf: true, cLung: true, tNone: true, donor: 'no', aNone: true, self: 'none', home: 'ok', dnr: 'none', acp: 'none', agent: 'none', place: 'home' } },
-  { t: '腹膜透析中，想換腎', d: '52 歲，腹膜透析 2 年，狀況穩定，已有 DNR 以外的文件都還沒做。哥哥想捐腎。', s: { age: 52, stage: 'pd', cap: 'yes', sq: 'yes', func: 'indep', dem: 'none', alb: 3.8, cNone: true, tNone: true, donor: 'yes', aNone: true, self: 'self', home: 'ok', work: true } },
-  { t: '無法表達意願', d: '76 歲，重度失智、長照機構，eGFR 8，家屬來討論是否開始透析。', s: { age: 76, stage: 'ckd', cap: 'no', egfr: 8, sx: 'sev', sq: 'no', func: 'dep', dem: 'sev', alb: 2.9, nh: true, cCva: true, donor: 'no', self: 'none', home: 'limited', aNone: true } }
+  { t: '透析前，年輕上班族', d: '45 歲，IgA 腎病變，eGFR 13，仍在上班。生活自理，太太願意評估捐腎。想在家治療、時間要有彈性。', s: { age: 45, stage: 'ckd', cap: 'yes', egfr: 13, sx: 'mild', sq: 'yes', kps: '80', dem: 'none', alb: 4.0, cNone: true, tNone: true, donor: 'yes', aNone: true, self: 'self', home: 'ok', work: true, far: true, _v: { life: 3, sched: 4, home: 3, diet: 2, travel: 2 }, choice: 'tx', when: '1m' } },
+  { t: '透析前，高齡多重共病', d: '84 歲，糖尿病腎病變 eGFR 9，心衰竭、截肢後，日常生活多需協助（KPS 30），白蛋白 2.4。主治醫師「不會意外」。', s: { age: 84, stage: 'ckd', cap: 'help', egfr: 9, sx: 'mild', sq: 'no', kps: '30', dem: 'mild', alb: 2.4, ccChf: true, ccPvd: true, ccDm2: true, donor: 'no', aNone: true, self: 'helper', home: 'ok' } },
+  { t: '預後不確定：限時嘗試', d: '78 歲，eGFR 11，輕度失智，偶爾需協助（KPS 60），白蛋白 3.2，中風病史。家人希望「試試看」，病人猶豫。', s: { age: 78, stage: 'ckd', cap: 'help', egfr: 11, sx: 'mild', sq: 'no', kps: '60', dem: 'mild', alb: 3.2, ccCvd: true, ccDm: true, donor: 'no', aSurg: true, self: 'helper', home: 'ok', choice: 'ttl', when: '2w' } },
+  { t: '血液透析中，考慮停止', d: '80 歲，透析 4 年，近半年反覆住院，現在臥床（KPS 30）、進食差，白蛋白 2.3，本人說「不想再洗了」。', s: { age: 80, stage: 'hd', cap: 'yes', sq: 'no', kps: '30', dem: 'none', alb: 2.3, ccChf: true, ccCopd: true, ccMi: true, tNone: true, donor: 'no', aNone: true, self: 'none', home: 'ok', dnr: 'none', acp: 'none', agent: 'none', place: 'home', choice: 'wd', when: 'now' } },
+  { t: '腹膜透析中，想換腎', d: '52 歲，腹膜透析 2 年，狀況穩定，預立醫療文件都還沒做。哥哥想捐腎。', s: { age: 52, stage: 'pd', cap: 'yes', sq: 'yes', kps: '90', dem: 'none', alb: 3.8, cNone: true, tNone: true, donor: 'yes', aNone: true, self: 'self', home: 'ok', work: true } },
+  { t: '病人選了不建議的選項', d: '67 歲，eGFR 12，三次剖腹手術後腹壁大型疝氣無法修補，但病人很想做腹膜透析。', s: { age: 67, stage: 'ckd', cap: 'yes', egfr: 12, sx: 'mild', sq: 'yes', kps: '70', dem: 'none', alb: 3.6, ccDm: true, tNone: true, donor: 'no', aSurg: true, aHernia: true, self: 'self', home: 'ok', _v: { home: 4, staff: 1, life: 3 }, choice: 'pd', when: '2w' } },
+  { t: '無法表達意願', d: '76 歲，重度失智、長照機構，eGFR 8，家屬來討論是否開始透析。', s: { age: 76, stage: 'ckd', cap: 'no', egfr: 8, sx: 'sev', sq: 'no', kps: '30', dem: 'sev', alb: 2.9, nh: true, ccCvd: true, donor: 'no', self: 'none', home: 'limited', aNone: true } }
 ];
 function renderCases() {
   $('caseList').innerHTML = CASES.map((c, i) => `<div class="card case"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><h3 style="font-size:15.5px">${esc(c.t)}</h3><span class="sample">示例</span></div><p class="small muted">${esc(c.d)}</p><div><button class="btn primary sm" type="button" data-case="${i}">載入此病例</button></div></div>`).join('');
@@ -1223,6 +1550,7 @@ function loadCase(i) {
   renderVals(); renderAll(); showTab('ws'); toast('已載入示例：' + c.t);
 }
 
+$('valTable').innerHTML = `<thead><tr><th>工具</th><th>用途</th><th>驗證狀態</th><th>說明</th></tr></thead><tbody>${VALID.map(v => `<tr><td><b>${esc(v[0])}</b></td><td class="small">${esc(v[1])}</td><td><span class="pill ${/^已驗證|客觀/.test(v[2]) ? 'go' : /未驗證/.test(v[2]) ? 'stop' : 'warn'}">${esc(v[2])}</span></td><td class="small">${esc(v[3])}</td></tr>`).join('')}</tbody>`;
 $('refList').innerHTML = REFS.map(r => `<li>${esc(r[0])} <a href="${r[1]}" target="_blank" rel="noopener">連結</a></li>`).join('');
 
 renderSheet(); renderCases(); renderVals(); renderAll();
