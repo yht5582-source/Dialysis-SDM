@@ -248,6 +248,55 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
 .pfaq details{border:1px solid var(--line-2);border-radius:8px;padding:8px 12px;background:var(--panel)}
 .pfaq summary{cursor:pointer;font-weight:500}
 .pfaq p{font-size:13.8px;color:var(--ink-2);margin-top:6px}
+/* teaching tabs: demonstration cases, exam, mind map */
+.xtitle{font-size:16px;margin:4px 0 10px}
+.xlist{display:grid;gap:14px;margin-bottom:22px}
+.xcase{display:grid;gap:10px}
+.xhead{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.xhead h3{font-size:15.5px;margin:0}
+.xno{font-family:var(--f-mono);font-size:13px;color:var(--accent)}
+.xask{font-weight:500}
+.xacts{display:flex;flex-wrap:wrap;gap:8px}
+.xans{display:grid;gap:8px;border-top:1px solid var(--line-2);padding-top:10px}
+.xsub{font-size:12.5px;font-weight:700;color:var(--ink-2);margin-top:4px}
+.xread{display:grid;gap:6px;font-size:14px;background:var(--accent-soft);border-radius:8px;padding:10px 12px}
+.xread .flabel{font-size:12.5px;color:var(--accent);font-weight:700;margin-right:8px}
+.xpills{display:inline-flex;flex-wrap:wrap;gap:4px}
+.xpills .pill{white-space:normal}
+.xcite{font-size:12.5px;color:var(--ink-3);margin-top:6px}
+.xbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-bottom:14px}
+.xbar>p{flex:1 1 320px;margin:0}
+.xscore{font-size:14px;color:var(--ink-2)}
+.xscore b{font-family:var(--f-mono);font-weight:500;color:var(--ink)}
+.xqh{display:flex;gap:8px;align-items:baseline}
+.xstem{font-size:15px;font-weight:500;margin:6px 0 10px}
+.xopts{display:grid;gap:6px}
+.xopt{appearance:none;font:inherit;font-size:14px;text-align:left;display:grid;grid-template-columns:24px minmax(0,1fr);gap:6px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:8px 10px;cursor:pointer}
+.xopt:hover:not(:disabled){border-color:var(--accent)}
+.xopt:disabled{cursor:default}
+.xopt b{font-family:var(--f-mono);font-weight:500;color:var(--ink-3)}
+.xopt.right{border-color:var(--go);background:var(--go-soft)} .xopt.right b{color:var(--go)}
+.xopt.wrong{border-color:var(--stop);background:var(--stop-soft)} .xopt.wrong b{color:var(--stop)}
+.xexp{margin-top:10px;font-size:14px;border-left:3px solid var(--line);padding:2px 0 2px 12px}
+.xexp strong.ok{color:var(--go)} .xexp strong.bad{color:var(--stop)}
+.mm{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 132px minmax(0,1fr);gap:0 52px;align-items:center}
+.mm svg.links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.mm svg.links path{fill:none;stroke:var(--line);stroke-width:1.6}
+.mm svg.links path.l{stroke:var(--accent)} .mm svg.links path.r{stroke:var(--go)}
+.mm-root{position:relative;z-index:1;text-align:center;font-family:var(--f-display);font-size:17px;line-height:1.35;background:var(--ink);color:var(--paper);border-radius:12px;padding:16px 10px}
+.mm-side{position:relative;z-index:1;display:grid;gap:10px;min-width:0}
+.mm-title{font-size:12px;letter-spacing:.08em;color:var(--ink-3);font-weight:500}
+.mm-node{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;min-width:0}
+.mm-side.left .mm-node{border-color:var(--accent)} .mm-side.right .mm-node{border-color:var(--go)}
+.mm-btn{appearance:none;width:100%;border:0;background:none;font:inherit;font-weight:500;font-size:14.5px;color:var(--ink);text-align:left;cursor:pointer;display:flex;gap:8px;justify-content:space-between;align-items:center;padding:8px 12px}
+.mm-btn i{font-style:normal;font-family:var(--f-mono);color:var(--ink-3);flex:none}
+.mm-node ul{margin:0;padding:0 12px 10px 28px;display:grid;gap:5px;font-size:13.5px}
+.mm-node li small{color:var(--ink-3);font-size:11.5px;margin-left:6px;white-space:nowrap}
+@media (max-width:900px){
+  .mm{grid-template-columns:minmax(0,1fr);gap:14px}
+  .mm svg.links{display:none}
+  .mm-root{order:-1}
+}
 </style>
 </head>
 <body>
@@ -268,8 +317,10 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
     <button class="tab" role="tab" id="tab-out" aria-controls="out" data-t="out"><b>6</b>成效評估</button>
     <button class="tab" role="tab" id="tab-acp" aria-controls="acp" data-t="acp"><b>7</b>ACP・AD・DNR</button>
     <button class="tab" role="tab" id="tab-algo" aria-controls="algo" data-t="algo"><b>8</b>流程總覽</button>
-    <button class="tab" role="tab" id="tab-cases" aria-controls="cases" data-t="cases"><b>9</b>示例病例</button>
-    <button class="tab" role="tab" id="tab-ref" aria-controls="ref" data-t="ref"><b>10</b>參考文獻與信效度</button>
+    <button class="tab" role="tab" id="tab-cases" aria-controls="cases" data-t="cases"><b>9</b>示範病例</button>
+    <button class="tab" role="tab" id="tab-exam" aria-controls="exam" data-t="exam"><b>10</b>考題</button>
+    <button class="tab" role="tab" id="tab-map" aria-controls="map" data-t="map"><b>11</b>心智圖</button>
+    <button class="tab" role="tab" id="tab-ref" aria-controls="ref" data-t="ref"><b>12</b>參考文獻與信效度</button>
   </nav>
 
   <div class="status" id="status" aria-live="polite"></div>
@@ -513,13 +564,38 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
     </div>
   </section>
 
-  <!-- 7 cases -->
+  <!-- cases -->
   <section class="pane" id="cases" role="tabpanel" aria-labelledby="tab-cases" hidden>
-    <p class="small muted" style="margin-bottom:12px">虛構的教學病例。載入後回到「引導評估」查看判讀；會覆蓋目前輸入。</p>
+    <p class="small muted" style="margin-bottom:12px">皆為虛構的教學病例。先自己想，再按「看判讀」；系統判讀由本頁工具即時算出。「帶入工具」或「載入此病例」會覆蓋目前輸入。</p>
+    <h3 class="xtitle">有解說的示範病例（4 例）</h3>
+    <div class="xlist" id="demoList"></div>
+    <h3 class="xtitle">其他示例（7 例，載入後自行判讀）</h3>
     <div class="cases" id="caseList"></div>
   </section>
 
-  <!-- 8 references -->
+  <!-- exam -->
+  <section class="pane" id="exam" role="tabpanel" aria-labelledby="tab-exam" hidden>
+    <p class="small muted" style="margin-bottom:12px">給醫療團隊的教學考題。給病人和家屬用的是第 4 分頁「理解確認」。</p>
+    <div class="card xbar">
+      <div class="seg" id="examFilter"><button type="button" data-xf="all" aria-pressed="true">全部 20</button><button type="button" data-xf="basic" aria-pressed="false">基礎 10</button><button type="button" data-xf="adv" aria-pressed="false">高階 10</button></div>
+      <span class="xscore" id="examScore" aria-live="polite"></span>
+      <button class="btn sm" type="button" id="examReset">重新作答</button>
+    </div>
+    <div class="xlist" id="examList"></div>
+    <p class="disclaimer">作答紀錄不會儲存，也不會寫入 SDM 紀錄。本考題僅供教學，未做心理計量驗證。</p>
+  </section>
+
+  <!-- mind map -->
+  <section class="pane" id="map" role="tabpanel" aria-labelledby="tab-map" hidden>
+    <div class="card xbar">
+      <p class="small muted">點分支展開。出處標記：<b>K24</b> KDIGO CKD 2024、<b>K20</b> KDIGO 移植候選人 2020、<b>RPA</b> RPA 2010、<b>安寧</b> 安寧緩和醫療條例、<b>病主</b> 病人自主權利法、<b>器移</b> 人體器官移植條例、<b>NHI</b> 健保規定、<b>年報</b> 台灣腎病年報；<b>本頁</b> 為本工具整理的流程，<b>未驗證</b> 為教學性近似。其餘為第一作者或量表名，全文見參考文獻。</p>
+      <div class="xacts"><button class="btn sm" type="button" id="mapOpen">全部展開</button><button class="btn sm" type="button" id="mapClose">全部收合</button></div>
+    </div>
+    <div class="mm" id="mm"></div>
+    <p class="disclaimer">心智圖是摘要，實際條件與法規以各分頁及主管機關最新公告為準。</p>
+  </section>
+
+  <!-- references -->
   <section class="pane" id="ref" role="tabpanel" aria-labelledby="tab-ref" hidden>
     <div class="card">
       <h3>評估工具的信效度</h3>
@@ -900,7 +976,7 @@ function asks(s, d, P) {
   const need = (key, t, why, fields, ok, extra) => { if (!ok && !P_.includes(key)) A.push(Object.assign({ key, t, why, fields }, extra || {})); };
   need('base', '目前的階段', '先確認病人處在哪個時間點：尚未透析、已在透析，或移植腎衰退，可討論的選項不同。', ['age', 'stage', 'cap'], filled(s, 'age') && filled(s, 'stage') && filled(s, 'cap'));
   if (!s.stage) return A;
-  if (d.pre) need('kidney', '腎功能與急迫性', '決定還有多少時間：eGFR <15、KFRE 2 年 >40% 或明顯尿毒症狀，表示需要盡快完成選擇與準備。', ['egfr', 'sx'], filled(s, 'egfr') && filled(s, 'sx'));
+  if (d.pre) need('kidney', '腎功能與急迫性', `決定還有多少時間：eGFR <${TH.egfrPrep}、KFRE 2 年 >${TH.kfrePrep}% 或明顯尿毒症狀，表示需要盡快完成選擇與準備。`, ['egfr', 'sx'], filled(s, 'egfr') && filled(s, 'sx'));
   need('prog', '健康狀況與預後', '預後決定透析能帶來多少好處。RPA 指引的四項指標：意外問題、Charlson 共病、KPS、白蛋白；年長且 ≥2 項不良者，保守治療應該被充分討論。', ['sq', 'kps', 'dem', 'alb'], filled(s, 'sq') && filled(s, 'kps') && filled(s, 'dem'));
   need('comorb', 'Charlson 共病指數', `勾選所有病史，系統自動加上腎臟病 2 分與年齡分數；≥${TH.cciHigh} 分屬 RPA 的「高共病負擔」，也影響移植評估。`, [...COMORB, 'nh', 'cNone'], anyChk(s, COMORB, 'cNone'));
   if (d.reinApplies) need('rein', 'REIN 分數（≥75 歲，準備開始透析）', '已驗證的工具：估計若開始透析，6 個月內的死亡率（法國 REIN 登錄，c 統計量 0.70）。', [...REIN, 'rNone'], REIN.some(k => s[k]) || !!s.rNone, { pri: 'later' });
@@ -1219,6 +1295,103 @@ if (typeof module !== 'undefined') module.exports = api;
 return api;
 })();
 /*ENGINE-END*/
+
+/*TEACH-START*/
+/* 教學內容：示範病例、考題、心智圖。病例的判讀由 SDM.evaluate 即時算出；tests.cjs 核對 expect 與考題答案 */
+const TEACH = (() => {
+const DEMO = [
+  {
+    id: 'd1', title: '選擇和在意的事對不上', tag: '決策品質',
+    stem: '58 歲男性，糖尿病腎病變，eGFR 14，輕微疲倦，仍在上班。KPS 80，白蛋白 3.9，腹部沒有手術史，可以自己學操作。他最在意在家治療和時間彈性，也希望少跑醫院，卻選了院內血液透析。旁邊的兒子說：「在醫院有護理師，我們比較放心。」SURE 4 題中，「確定最佳選擇」與「得到足夠的支持」都回答「否」。',
+    ask: '這個選擇醫療上可行，今天可以定案嗎？',
+    s: { age: 58, stage: 'ckd', cap: 'yes', egfr: 14, sx: 'mild', sq: 'yes', kps: '80', dem: 'none', alb: 3.9, ccDm: true, tNone: true, donor: 'no', aNone: true, self: 'self', home: 'ok', work: true, _v: { home: 4, sched: 4, travel: 3, hosp: 3 }, choice: 'hd', when: '2w', sure1: 'n', sure2: 'y', sure3: 'y', sure4: 'n' },
+    reason: ['院內血液透析可行，系統仍以病人的選擇為主要路徑，不會把選擇改掉。', 'SURE 2/4，已低於 ≤3 分的切點，表示有決策衝突。', '契合度差距大，而且兒子的意見就在現場，壓力可能來自家人。'],
+    next: ['今天不定案，兩週內再約；單獨問病人一次：「如果不考慮家人，您會怎麼選？」', '針對回答「否」的兩題補資訊與支持，可請腹膜透析腎友或衛教師說明輔助方式。', 'eGFR 已低於 20，不能無限期拖延：同時保護非慣用手血管。'],
+    pit: '可行不等於已準備好。也不要用契合度分數取代病人的選擇：分數未經驗證，只用來開啟對話。',
+    cite: 'SURE（Ferron Parayre 2014）；KDIGO 2024 PP 5.4.3；本頁綜合建議演算法（未驗證）',
+    expect: { level: 'good', rpa: false, status: 'ok', primary: 'hd', ready: false, sureYes: 2, timing: 'warn', fitTop: 'pd', note: '差距較大' }
+  },
+  {
+    id: 'd2', title: '移植腎衰退，想再換一次', tag: '移植腎',
+    stem: '46 歲女性，活體腎移植後 11 年，移植腎功能逐漸下降，eGFR 16，輕微疲倦。KPS 80，白蛋白 3.7，沒有其他共病。姊姊願意接受捐腎評估。她重視壽命、工作時間彈性與飲食自由，選擇再次移植。',
+    ask: '這個階段和第一次面對透析有什麼不同？如果來不及移植怎麼辦？',
+    s: { age: 46, stage: 'graft', cap: 'yes', egfr: 16, sx: 'mild', sq: 'yes', kps: '80', dem: 'none', alb: 3.7, cNone: true, tNone: true, donor: 'yes', aNone: true, self: 'self', home: 'ok', work: true, _v: { life: 4, sched: 3, diet: 3 }, choice: 'tx', when: '1m', sure1: 'y', sure2: 'y', sure3: 'y', sure4: 'y' },
+    reason: ['移植腎衰退同樣視為尚未透析，eGFR <20 進入準備期，也可以討論先發性移植。', '移植是主要路徑，系統另外配一個銜接模式，因為捐贈評估可能趕不上腎功能下降。', '姊姊屬於五親等內血親，符合活體捐贈的親屬範圍；仍須滿 20 歲並通過獨立評估。'],
+    next: ['轉介移植團隊，同時啟動姊姊的評估。', '同步準備銜接透析，不要等移植結果才開始。', '請移植團隊評估致敏狀況與免疫抑制藥物的調整。'],
+    pit: '本工具沒有評估致敏（抗體）、免疫抑制藥物減量或再次移植的手術條件，這些要由移植團隊判斷。REIN 也不適用。',
+    cite: 'KDIGO 2020 移植候選人；KDIGO 2024 PP 5.4.3；人體器官移植條例第 8 條',
+    expect: { level: 'good', rpa: false, status: 'ok', primary: 'tx', ready: true, bridge: 'pd', timing: 'warn', noRein: true, note: '先發性移植' }
+  },
+  {
+    id: 'd3', title: '79 歲，年紀大但預後尚可', tag: '預後判讀',
+    stem: '79 歲男性，退休教師，糖尿病（無器官損傷），eGFR 10，輕微疲倦。自己開車、打理生活（KPS 80），白蛋白 3.8，認知正常，主治醫師「會意外」。腹部沒有手術史，住得離透析中心遠。他想在家治療、少跑醫院，也想多活幾年，還沒決定。家人認為：「年紀這麼大，應該就不要洗了。」',
+    ask: '年紀是否足以判定不適合透析？各項預後工具怎麼算？',
+    s: { age: 79, stage: 'ckd', cap: 'yes', egfr: 10, sx: 'mild', sq: 'yes', kps: '80', dem: 'none', alb: 3.8, ccDm: true, rDm: true, tNone: true, donor: 'no', aNone: true, self: 'self', home: 'ok', far: true, _v: { home: 4, hosp: 3, life: 3 }, choice: 'undecided', when: '1m' },
+    reason: ['修正版 Charlson：糖尿病 2＋腎臟病 2＋年齡 3＝7 分，未達 ≥8。', 'RPA 四項指標都沒有達標，雖然 ≥75 歲，也不符合「≥75 歲且 ≥2 項」。', 'REIN 僅糖尿病 1 分，驗證資料的 6 個月死亡率約 10%。', '病人尚未決定，所以腹膜透析只是待確認的建議，不是定案。'],
+    next: ['以腹膜透析為討論起點，保守治療與移植也都要說明，再由病人確認。', '向家人說明：不透析是可以考慮的選項，但不是因為年齡就該如此。', 'eGFR 10 已在準備期，一個月內完成選擇。'],
+    pit: 'Montez-Rath 2024 是未轉介移植的 ≥65 歲族群平均結果，不能直接當成這位病人的預後。REIN 只有內部驗證，也未在台灣驗證。',
+    cite: 'RPA 2010 Rec 6 與工具 6-2；Couchoud 2009；Montez-Rath 2024',
+    expect: { level: 'good', rpa: false, status: 'suggest', primary: 'pd', cci: 7, rein: [1, 10], timing: 'warn', optNote: ['tx', '年齡本身不是禁忌'] }
+  },
+  {
+    id: 'd4', title: '透析穩定，想先把預立醫療講清楚', tag: 'ACP・AD・DNR',
+    stem: '68 歲女性，血液透析 3 年，曾心肌梗塞，目前穩定（KPS 70，白蛋白 3.7），會繼續透析。看到病友急救插管後，她說：「以後如果走到那一步，我不要那樣。」DNR、ACP、AD 和代理人都還沒有處理，她也不確定最後想在哪裡。',
+    ask: '她現在該簽哪些文件？簽了之後，透析會受影響嗎？',
+    s: { age: 68, stage: 'hd', cap: 'yes', sq: 'yes', kps: '70', dem: 'none', alb: 3.7, ccMi: true, tNone: true, donor: 'no', aNone: true, self: 'self', home: 'ok', dnr: 'none', acp: 'none', agent: 'none', place: 'undecided', choice: 'cont', when: '3m', sure1: 'y', sure2: 'y', sure3: 'y', sure4: 'y' },
+    reason: ['她的決定是維持透析，系統轉到「維持目前透析」路徑，不會推向停止透析。', '65 歲以上透析病人屬重大傷病，ACP 可由健保給付（終生一次，需完成 AD 並上傳）。', 'DNR 意願書不需要諮商、可先簽，執行時才需要兩位相關專科醫師判定末期。', 'AD 只在五款臨床條件下適用；末期腎臟病不在公告疾病內，穩定透析時不會啟動。'],
+    next: ['預約 ACP，請至少一位二親等內親屬同行；想指定代理人的話，代理人也要出席。', '討論 DNR 意願書，並請她把「哪種狀態不願接受」講具體。', '每年或病情改變時（住院、功能下降）再檢視。'],
+    pit: '簽 DNR 或 AD 不等於停止透析。代理人與主責照護團隊成員不能擔任 AD 的見證人。',
+    cite: '安寧緩和醫療條例；病人自主權利法；衛福部 2025-05-01 ACP 給付擴大',
+    expect: { level: 'good', rpa: false, status: 'ok', primary: 'hd', ready: true, plan: 'cont', acp: '65 歲以上透析病人' }
+  }
+];
+
+const EXAM = [
+  { lv: 'basic', q: '本頁採用的 RPA 2010 第 6 項建議，提示「可考慮不透析」的條件是？', o: ['≥70 歲且 ≥1 項預後不良指標', '≥75 歲且 ≥2 項預後不良指標', '≥80 歲，不論有無其他預後指標', '不限年齡，只要有 ≥3 項預後不良指標'], a: 1, e: '條件是 ≥75 歲且 ≥2 項預後不良指標。這只提示應充分討論保守治療，不是替病人決定；此規則也未經前瞻驗證。', s: 'RPA 2010 Rec 6' },
+  { lv: 'basic', q: '下列何者不是 RPA 用來判斷預後不良的四項指標之一？', o: ['意外問題答「不會意外」', 'KPS <40', '白蛋白 <2.5 g/dL', 'eGFR <10'], a: 3, e: '四項是意外問題、高共病負擔（修正版 Charlson ≥8）、KPS <40、白蛋白 <2.5 g/dL。eGFR 用來判斷時程，不是這四項之一。', s: 'RPA 2010 Rec 6' },
+  { lv: 'basic', q: '病人簽了 DNR 意願書之後，下列何者正確？', o: ['透析與藥物也都必須停止', '只有住進安寧病房才有效', '急救以外的治療照常進行', '家屬可以隨時決定是否生效'], a: 2, e: 'DNR 針對心跳呼吸停止時的心肺復甦術與維生醫療，透析、藥物等其他治療除非另外決定，否則照常。', s: '安寧緩和醫療條例；本頁理解確認第 7 題' },
+  { lv: 'basic', q: '預立醫療決定（AD）可以由誰簽署？', o: ['本人或其最近親屬一人', '主治醫師代為簽署', '醫療委任代理人代為簽署', '具完全行為能力的本人'], a: 3, e: 'AD 只能由具完全行為能力的本人，在完成預立醫療照護諮商後簽署。病人無法表達時，代理人是代為表達意願，不是代簽 AD。', s: '病人自主權利法第 8、9 條' },
+  { lv: 'basic', q: '參加預立醫療照護諮商（ACP）時，除本人外原則上至少要有誰出席？', o: ['一位二親等內親屬', '所有成年子女與配偶', '兩位見證人', '主治腎臟科醫師與社工'], a: 0, e: '至少一位二親等內親屬（已死亡、失蹤或有特殊事由可免）；已指定醫療委任代理人者，代理人也要出席。', s: '病人自主權利法第 9 條' },
+  { lv: 'basic', q: 'SURE 共 4 題，幾分以下視為有決策衝突？', o: ['≤1 分', '≤2 分', '≤3 分', '沒有切點，只看整體印象'], a: 2, e: '≤3 分（任何一題答「否」）。原始驗證以 DCS >37.5 為標準，敏感度 94%、特異度 90%；該研究是基層抗生素決策，繁中版尚未見心理計量驗證。', s: 'Ferron Parayre 2014' },
+  { lv: 'basic', q: '下列哪種情況，本頁會把腹膜透析判定為「不建議」，而不只是「需評估」？', o: ['曾做過腹部手術', '有腸造口或胃造口', '需要家人或看護協助操作', '無法修補的腹壁缺損'], a: 3, e: '無法修補的腹壁缺損，以及無法操作又無人協助，判定為不建議。手術史、造口、巨大多囊腎、需要協助或環境受限，則是需評估。', s: '本頁可行性規則（依指引整理，未獨立驗證）' },
+  { lv: 'basic', q: 'KDIGO 2024 建議，KFRE 2 年風險超過多少時，應開始模式衛教、血管通路規劃與移植轉介？', o: ['>3%', '>10%', '>40%', '>80%'], a: 2, e: '>40% 進入準備期。>10% 則是納入多專業腎臟團隊照護的門檻。', s: 'KDIGO 2024 PP 2.2.2、2.2.3' },
+  { lv: 'basic', q: '依人體器官移植條例，配偶要符合什麼條件才能活體捐腎？', o: ['結婚滿 2 年或已生育子女', '完成結婚登記後即可捐贈', '結婚滿 1 年且同住一處', '結婚滿 5 年而且已生育子女'], a: 0, e: '配偶須已生育子女或結婚滿 2 年。其他親屬是五親等內血親，捐贈者須滿 20 歲；條件相符的兩組家庭可配對交換。', s: '人體器官移植條例第 8 條' },
+  { lv: 'basic', q: '關於腎臟保守治療，下列何者正確？', o: ['開始後不再追蹤腎臟科', '仍持續處理症狀與併發症', '選了以後就不能改成透析', '只有已簽 DNR 的人能選'], a: 1, e: '保守治療仍有腎臟科與安寧團隊照顧：貧血、酸中毒、水腫、搔癢與飲食，目標是生活品質。身體狀況允許時，也可以改變心意開始透析。', s: 'Davison 2024（ISN）；Wong 2026（ASN）' },
+
+  { lv: 'adv', q: '76 歲，尚未透析，有糖尿病（無器官損傷）、鬱血性心衰竭、周邊血管疾病，認知正常。修正版 Charlson 是幾分？', o: ['7 分', '8 分', '9 分', '10 分'], a: 2, e: '糖尿病 2＋心衰竭 1＋周邊血管 1＋腎臟病 2＋年齡 3（40 歲以上每滿 10 歲 1 分）＝9 分，已達高共病負擔（≥8）。', s: 'RPA 2010 工具 6-2；Beddhu 2000' },
+  { lv: 'adv', q: '下列哪位病人符合 RPA 第 6 項建議？', o: ['74 歲：不會意外、KPS 30、白蛋白 2.2、Charlson 6', '76 歲：不會意外、KPS 60、白蛋白 3.6、Charlson 6', '82 歲：會意外、KPS 70、白蛋白 3.8、Charlson 7', '77 歲：會意外、KPS 30、白蛋白 2.4、Charlson 6'], a: 3, e: '77 歲這位有 KPS 與白蛋白兩項。74 歲那位雖有三項，但未滿 75 歲，不符合這條規則；本頁仍會判定預後不良，保守治療一樣要充分討論。', s: 'RPA 2010 Rec 6' },
+  { lv: 'adv', q: 'Montez-Rath 2024 納入未轉介移植、eGFR <12 的 ≥65 歲美國退伍軍人。開始透析相較於繼續內科治療，3 年內的結果是？', o: ['多活約 9 天（95% CI 跨 0），在家天數少約 14 天', '多活約 1 年，在家天數也多約 2 個月', '少活約 78 天（95% CI 不跨 0），在家天數多約 14 天', '多活約 78 天，在家天數與對照組沒有差異'], a: 0, e: '差 9.3 天（−17.4 至 30.1），在家少 13.6 天。內科治療組的透析開始時間中位數是 3.0 年；與完全不透析相比才多活 77.6 天、在家少 14.7 天。這是觀察性研究，女性與非退伍軍人的推論有限。', s: 'Montez-Rath 2024' },
+  { lv: 'adv', q: 'Kurella Tamura 2009：美國長照機構住民開始透析 12 個月後，結果最接近下列何者？', o: ['死亡 20%，維持原功能 60% 以上', '死亡 58%，維持原功能 13%', '死亡 35%，維持原功能 39%', '死亡 75%，維持原功能 5%'], a: 1, e: '12 個月時 58% 死亡，僅 13% 維持透析前功能（39% 是 3 個月時維持功能的比例）。可用於長照住民的討論，不宜外推到一般高齡病人。', s: 'Kurella Tamura 2009' },
+  { lv: 'adv', q: '80 歲血液透析病人有決策能力，表示不想再洗，目前沒有任何文件。下列流程何者最符合本頁整理的做法？', o: ['請病人當天簽署 AD，完成後由主治醫師一人判定末期，即可停止透析', '先評估可逆原因、開家庭會議，兩位專科醫師判定末期、本人簽意願書', '由配偶簽署最近親屬同意書，病人本人不需要再表達意願或簽署文件', '末期腎臟病屬病主法公告疾病，不必判定末期，依口頭意願直接停止'], a: 1, e: '先排除憂鬱、疼痛、感染、透析不足等可逆原因，再開家庭會議；有決策能力者由本人簽意願書，並由兩位相關專科醫師判定末期。末期腎臟病不在公告的 12 類疾病內；透析未列名於條文，臨床上依維生醫療處理。', s: '安寧緩和醫療條例第 4–7 條；病人自主權利法第 14 條' },
+  { lv: 'adv', q: '76 歲重度失智、無法表達，健保卡沒有 AD 或意願書，已由兩位相關專科醫師判定末期。配偶與成年長子對是否不開始透析意見不同，依安寧條例應如何處理？', o: ['以配偶意見為準，且不得違反病人先前明示的意思', '以長子意見為準，因為他是主要照顧者與付費者', '家屬須全體一致同意，否則不能簽署同意書', '由家屬代病人簽署 AD，再依 AD 不開始透析'], a: 0, e: '最近親屬一人簽同意書即可，意見不同時以順位在前者為準（配偶優先於成年子女），且不得違反病人先前明示的意思。AD 不能由家屬代簽。', s: '安寧緩和醫療條例第 7 條' },
+  { lv: 'adv', q: '兩位穩定血液透析病人都沒有其他給付條件（非安寧收案、非居家醫療等）：甲 58 歲、乙 70 歲。誰的 ACP 可由健保給付？', o: ['兩位都可以，因為透析病人都屬於重大傷病', '兩位都不行，ACP 一律需要自費', '只有甲，因為 65 歲以下才有給付', '只有乙，65 歲以上重大傷病才納入'], a: 3, e: '2025-05-01 起擴大到 65 歲以上重大傷病病人（含透析）。給付終生一次，且需完成 AD 並上傳；甲目前需自費，上限每小時 3,500 元。', s: '衛福部新聞稿 2025-04-30' },
+  { lv: 'adv', q: '58 歲病人選院內血液透析（醫療上可行），但價值契合度血液透析 13%、腹膜透析 82%，SURE 2/4。下一步最合適的是？', o: ['以價值分數為準，把選擇直接改成腹膜透析', '病人已選擇且可行，今天定案並開始安排瘻管', '今天不定案，探詢未說出的考量後再約討論', '改用 DCS 重測，分數低於 37.5 即可定案'], a: 2, e: '可行不等於準備好。SURE ≤3 表示有決策衝突，契合度差距則提示可能有未說出的考量（家人、經濟、恐懼）。分數未經驗證，不能取代病人的選擇。', s: '本頁綜合建議演算法（未驗證）；Ferron Parayre 2014' },
+  { lv: 'adv', q: 'Wolfe 1999 比較首次屍腎移植者與仍在等候名單上的透析病人。下列敘述何者正確？', o: ['移植後任何時間點的死亡風險，都低於仍留在名單上繼續等候的人', '術後 2 週內風險約 2.8 倍，18 個月 RR 約 0.32', '兩組死亡風險在各時間點都相近，差別主要在生活品質', '移植後死亡風險長期高於繼續等候，但可以減少透析帶來的負擔'], a: 1, e: '術後早期風險較高，長期明顯較低，諮商時兩者都要說。資料來自 1991–1997 年美國，等候名單上的病人本來就較健康，比較的是同樣被列入名單者。', s: 'Wolfe 1999' },
+  { lv: 'adv', q: '本頁如何使用決策後悔量表（DRS）？', o: ['決定後 3–6 個月測；沒有官方切點', '討論當下測；>37.5 分表示決策衝突高', '決定前測；<25 分代表可以執行決定', '每次門診測；≤3 分就要重新討論'], a: 0, e: 'DRS 沒有官方切點，系統性回顧的跨研究平均約 16.5 分。25 與 37.5 是 DCS 的切點，≤3 分是 SURE 的切點。', s: 'Brehaut 2003；Becerra Pérez 2016' }
+];
+
+/* [分支名稱, [[內容, 出處標記], …]] */
+const MAP = {
+  left: [
+    ['階段與急迫性', [['尚未透析、移植腎衰退、血液透析中、腹膜透析中，可討論的選項不同', '本頁'], ['KFRE 2 年 >10%：多專業團隊照護', 'K24'], ['eGFR <20（KDIGO 為 <15–20，本頁取上限）或 KFRE 2 年 >40%：模式衛教、通路、移植轉介', 'K24'], ['明顯尿毒症狀：數天到數週內決定', '本頁']]],
+    ['預後工具', [['意外問題：不會意外，1 年死亡率 29.4% vs 10.6%', 'Moss'], ['KPS <40、白蛋白 <2.5 g/dL', 'RPA'], ['修正版 Charlson ≥8：腎臟病 2，合併糖尿病至少 4；40 歲以上每滿 10 歲加 1', 'RPA'], ['≥75 歲且 ≥2 項：提示可考慮不透析', 'RPA'], ['REIN：≥75 歲開始透析前，僅內部驗證', 'REIN']]],
+    ['決策能力', [['能理解、記得、權衡資訊並表達選擇', '本頁'], ['需家人協助理解：仍以本人意願為主', '本頁'], ['無法表達：先查健保卡的 AD 或意願書', '法規'], ['末期且無文件：最近親屬一人簽同意書，不得違反先前明示的意思', '安寧']]],
+    ['居家治療可行性', [['腹膜透析不建議：無法修補的腹壁缺損；無法操作又無人協助', '本頁'], ['腹膜透析需評估：手術史、造口、巨大多囊腎、需協助、環境受限', '本頁'], ['居家血液透析：同住照顧者、固定居所、數週訓練', 'NHI']]],
+    ['移植可行性', [['年齡本身不是禁忌', 'K20'], ['先處理：心肺疾病、活動性感染、服藥與回診遵從性、近期癌症', 'K20'], ['活體：五親等內血親，或配偶（結婚滿 2 年或已生育）；捐贈者滿 20 歲', '器移'], ['台灣從透析到移植平均約 4.9 年（2022 年，含活體）', '年報']]],
+    ['價值與決策品質', [['9 項在意的事 × 選項特性：只用來引導討論', '未驗證'], ['選擇與最契合選項差 ≥20%：探詢未說出的考量', '未驗證'], ['SURE ≤3：有決策衝突，今天不定案', 'SURE'], ['理解確認 10 題：找出要再解釋的地方', '未驗證']]]
+  ],
+  right: [
+    ['透析與移植路徑', [['血液透析與腹膜透析的存活沒有明顯差別，差在生活型態', 'Mehrotra'], ['動靜脈瘻管：預計開始前約 6 個月建立', '本頁'], ['腹膜透析導管：開始前約 2–4 週', '本頁'], ['移植：術後 2 週內風險約 2.8 倍，18 個月 RR 0.32', 'Wolfe'], ['選移植時同步準備銜接透析模式', '本頁']]],
+    ['腎臟保守治療', [['腎臟科＋安寧：症狀、貧血、水腫、飲食，以生活品質為目標', 'ISN'], ['≥65 歲未轉介移植：開始透析平均多 9.3 天（CI 跨 0），在家少 13.6 天', 'Montez'], ['≥80 歲：單中心未見顯著存活優勢', 'Verberne'], ['長照住民開始透析 12 個月：58% 死亡，13% 維持功能', 'Kurella'], ['病人改變心意時可再討論透析', '本頁']]],
+    ['限時嘗試透析', [['適用：預後不明、家人意見不一致', '本頁'], ['事先寫下目標：體力、住院、症狀、病人感受', '本頁'], ['約定期限（例如 1–3 個月）與未達標後的安排', '本頁'], ['到期開家庭會議，決定繼續或停止', '本頁']]],
+    ['停止透析', [['確認決策能力，處理憂鬱、疼痛、感染、透析不足', '本頁'], ['家庭會議：病人、家屬、腎臟科、安寧、社工', '本頁'], ['兩位相關專科醫師判定末期＋意願書、同意書或 AD', '安寧'], ['預開症狀處理醫囑；安寧收案後平均存活 7.4 天', "O'Connor"]]],
+    ['ACP・AD・DNR', [['DNR：免諮商、免費；只限急救與維生醫療', '安寧'], ['AD：本人簽，須先完成 ACP；五款臨床條件才適用', '病主'], ['末期腎臟病不在 12 類公告疾病內', '病主'], ['健保給付 ACP：65 歲以上重大傷病（含透析）等，終生一次', 'NHI'], ['代理人與主責照護團隊成員不得擔任 AD 見證人', '病主']]],
+    ['成效追蹤', [['DCS：討論前與做決定時；<25 常能執行，>37.5 常延遲', 'DCS'], ['PrepDM：SDM 討論後', 'PrepDM'], ['DRS：決定後 3–6 個月；沒有官方切點', 'DRS'], ['每年或病情改變時重新檢視選擇與文件', '本頁']]]
+  ]
+};
+return { DEMO, EXAM, MAP };
+})();
+/*TEACH-END*/
 
 /* ---------- Taiwan law & process content ---------- */
 const LAW = [
@@ -1610,7 +1783,7 @@ document.addEventListener('click', e => {
   if (e.target.id === 'copySum') { copyText(SDM.summary(S)); return; }
   if (e.target.id === 'resetAll') { if (confirm('清除所有輸入？')) { S = blank(); renderVals(); renderAll(); toast('已清除'); } return; }
   if (e.target.id === 'expandAll') { const ds = [...document.querySelectorAll('#sheet details.layer')]; const open = !ds.every(x => x.open); ds.forEach(x => x.open = open); e.target.textContent = open ? '全部收合' : '全部展開'; return; }
-  const c = e.target.closest('[data-case]'); if (c) { loadCase(+c.dataset.case); return; }
+  const c = e.target.closest('[data-case]'); if (c) { loadCase(CASES[+c.dataset.case]); return; }
 });
 
 function copyText(t, msg) {
@@ -1622,11 +1795,12 @@ function copyText(t, msg) {
 let tt; function toast(m) { const el = $('toast'); el.textContent = m; el.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('show'), 1800); }
 
 /* tabs */
-const TABS = ['ws', 'opts', 'vals', 'quiz', 'plan', 'out', 'acp', 'algo', 'cases', 'ref'];
+const TABS = ['ws', 'opts', 'vals', 'quiz', 'plan', 'out', 'acp', 'algo', 'cases', 'exam', 'map', 'ref'];
 function showTab(t) {
   TABS.forEach(x => { $(x).hidden = x !== t; $('tab-' + x).setAttribute('aria-selected', x === t); $('tab-' + x).tabIndex = x === t ? 0 : -1; });
   try { localStorage.setItem(LS + '-tab', t); } catch (e) {}
   window.scrollTo({ top: 0 });
+  if (t === 'map') drawMap();
 }
 document.querySelector('.tabs').addEventListener('click', e => { const b = e.target.closest('.tab'); if (b) showTab(b.dataset.t); });
 document.querySelector('.tabs').addEventListener('keydown', e => {
@@ -1688,19 +1862,103 @@ const CASES = [
 function renderCases() {
   $('caseList').innerHTML = CASES.map((c, i) => `<div class="card case"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><h3 style="font-size:15.5px">${esc(c.t)}</h3><span class="sample">示例</span></div><p class="small muted">${esc(c.d)}</p><div><button class="btn primary sm" type="button" data-case="${i}">載入此病例</button></div></div>`).join('');
 }
-function loadCase(i) {
-  const c = CASES[i];
+function loadCase(c) {
   S = Object.assign(blank(), JSON.parse(JSON.stringify(c.s)));
   if (S.choice && S.choice !== 'undecided') S._decT = Date.now();
   log(`載入示例：${c.t}`);
   renderVals(); renderAll(); showTab('ws'); toast('已載入示例：' + c.t);
 }
 
+/* ---------- demonstration cases (reading computed live by the engine) ---------- */
+const REC_L = { ok: '依病人選擇', eval: '依病人選擇，待評估', suggest: '建議（待病人確認）', conflict: '選擇不建議，替代為' };
+function demoReading(c) {
+  const r = SDM.evaluate(c.s), rec = r.rec;
+  return `<div class="xread">
+    <div><span class="flabel">預後</span>${esc(PRG[r.P.level])}${r.P.rpa ? '；符合 RPA' : ''}${r.d.cciKnown ? `；Charlson ${r.d.cci.total}` : ''}${r.d.rein ? `；REIN ${r.d.rein.score} 分（約 ${r.d.rein.mort6}%）` : ''}</div>
+    ${r.timing ? `<div><span class="flabel">時程</span>${esc(r.timing.t)}</div>` : ''}
+    <div><span class="flabel">選項</span><span class="xpills">${r.opts.map(o => `<span class="pill ${ST[o.st][0]}">${esc(o.t)}：${ST[o.st][1]}</span>`).join('')}</span></div>
+    <div><span class="flabel">綜合建議</span>${esc(REC_L[rec.status])}「${esc(rec.primary.t)}」${rec.bridge ? `；銜接「${esc(rec.bridge.t)}」` : ''}${rec.sure.done ? `；SURE ${rec.sure.yes}/4` : ''}</div>
+    ${rec.notes.length ? `<ul class="plain small muted">${rec.notes.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+  </div>`;
+}
+function renderDemos() {
+  $('demoList').innerHTML = TEACH.DEMO.map((c, i) => `<article class="card xcase" data-demo="${i}">
+    <div class="xhead"><span class="xno">病例 ${i + 1}</span><h3>${esc(c.title)}</h3><span class="pill ev">${esc(c.tag)}</span></div>
+    <p>${esc(c.stem)}</p>
+    <p class="xask">${esc(c.ask)}</p>
+    <div class="xacts"><button class="btn primary sm" type="button" data-dact="show" aria-expanded="false">看判讀</button><button class="btn sm" type="button" data-dact="load">帶入工具</button></div>
+    <div class="xans" hidden>
+      <span class="xsub">系統即時判讀</span>${demoReading(c)}
+      <span class="xsub">判讀</span><ul class="plain">${c.reason.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+      <span class="xsub">下一步</span><ul class="plain">${c.next.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+      <div class="alert warn"><strong>易錯點</strong><span>${esc(c.pit)}</span></div>
+      <p class="xcite">出處：${esc(c.cite)}</p>
+    </div>
+  </article>`).join('');
+}
+$('demoList').addEventListener('click', e => {
+  const b = e.target.closest('[data-dact]'); if (!b) return;
+  const card = b.closest('[data-demo]'), c = TEACH.DEMO[+card.dataset.demo];
+  if (b.dataset.dact === 'load') { loadCase({ t: c.title, s: c.s }); return; }
+  const a = card.querySelector('.xans'); a.hidden = !a.hidden;
+  b.textContent = a.hidden ? '看判讀' : '收合判讀'; b.setAttribute('aria-expanded', String(!a.hidden));
+});
+
+/* ---------- exam (not stored; separate from the patient comprehension check in tab 4) ---------- */
+let xAns = {}, xLv = 'all';
+function renderExam() {
+  const L = 'ABCD';
+  $('examList').innerHTML = TEACH.EXAM.map((x, i) => {
+    if (xLv !== 'all' && x.lv !== xLv) return '';
+    const got = xAns[i], done = got !== undefined;
+    return `<article class="card xq"><div class="xqh"><span class="xno">第 ${i + 1} 題</span><span class="pill ${x.lv === 'adv' ? 'warn' : 'ev'}">${x.lv === 'adv' ? '高階' : '基礎'}</span></div>
+      <p class="xstem">${esc(x.q)}</p>
+      <div class="xopts">${x.o.map((t, j) => `<button class="xopt ${done && j === x.a ? 'right' : ''} ${done && j === got && j !== x.a ? 'wrong' : ''}" type="button" data-xq="${i}" data-xo="${j}" ${done ? 'disabled' : ''}><b>${L[j]}</b><span>${esc(t)}</span></button>`).join('')}</div>
+      ${done ? `<div class="xexp"><strong class="${got === x.a ? 'ok' : 'bad'}">${got === x.a ? '答對' : '答錯，正確答案 ' + L[x.a]}</strong>。${esc(x.e)}<div class="xcite">出處：${esc(x.s)}</div></div>` : ''}
+    </article>`;
+  }).join('');
+  const sc = lv => { const q = TEACH.EXAM.map((x, i) => [x, i]).filter(([x]) => lv === 'all' || x.lv === lv), d = q.filter(([, i]) => xAns[i] !== undefined); return [d.filter(([x, i]) => xAns[i] === x.a).length, d.length, q.length]; };
+  const [r, d, n] = sc('all'), [br, bd] = sc('basic'), [ar, ad] = sc('adv');
+  $('examScore').innerHTML = `已答 <b>${d}/${n}</b>，答對 <b>${r}</b>｜基礎 <b>${br}/${bd}</b>｜高階 <b>${ar}/${ad}</b>`;
+}
+$('examList').addEventListener('click', e => {
+  const b = e.target.closest('[data-xo]'); if (!b || b.disabled) return;
+  xAns[+b.dataset.xq] = +b.dataset.xo; const y = window.scrollY; renderExam(); window.scrollTo(0, y);
+});
+$('examFilter').addEventListener('click', e => {
+  const b = e.target.closest('[data-xf]'); if (!b) return;
+  xLv = b.dataset.xf; $('examFilter').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); renderExam();
+});
+$('examReset').addEventListener('click', () => { xAns = {}; renderExam(); });
+
+/* ---------- mind map ---------- */
+function mapSide(list, side, title) {
+  return `<div class="mm-side ${side}"><div class="mm-title">${esc(title)}</div>${list.map(([t, lv]) => `<div class="mm-node" data-side="${side}"><button class="mm-btn" type="button" aria-expanded="false"><span>${esc(t)}</span><i>＋</i></button><ul hidden>${lv.map(([x, s]) => `<li>${esc(x)}<small>${esc(s)}</small></li>`).join('')}</ul></div>`).join('')}</div>`;
+}
+function drawMap() {
+  const mm = $('mm'), svg = mm.querySelector('svg.links');
+  if (!mm.offsetParent || getComputedStyle(svg).display === 'none') return;
+  const o = mm.getBoundingClientRect(), rt = mm.querySelector('.mm-root').getBoundingClientRect(), cy = rt.top + rt.height / 2 - o.top;
+  svg.setAttribute('viewBox', `0 0 ${o.width} ${o.height}`);
+  svg.innerHTML = [...mm.querySelectorAll('.mm-node')].map(n => {
+    const b = n.querySelector('.mm-btn').getBoundingClientRect(), y = b.top + b.height / 2 - o.top, left = n.dataset.side === 'left';
+    const x1 = left ? rt.left - o.left : rt.right - o.left, x2 = left ? b.right - o.left : b.left - o.left, mx = (x1 + x2) / 2;
+    return `<path class="${left ? 'l' : 'r'}" d="M${x1} ${cy} C${mx} ${cy} ${mx} ${y} ${x2} ${y}"/>`;
+  }).join('');
+}
+function setNode(n, open) { n.querySelector('ul').hidden = !open; const b = n.querySelector('.mm-btn'); b.setAttribute('aria-expanded', String(open)); b.querySelector('i').textContent = open ? '－' : '＋'; }
+$('mm').innerHTML = `<svg class="links" aria-hidden="true"></svg>${mapSide(TEACH.MAP.left, 'left', '評估')}<div class="mm-root">末期腎臟病<br>共享決策</div>${mapSide(TEACH.MAP.right, 'right', '決定與執行')}`;
+$('mm').addEventListener('click', e => { const b = e.target.closest('.mm-btn'); if (!b) return; const n = b.closest('.mm-node'); setNode(n, n.querySelector('ul').hidden); drawMap(); });
+$('mapOpen').addEventListener('click', () => { document.querySelectorAll('.mm-node').forEach(n => setNode(n, true)); drawMap(); });
+$('mapClose').addEventListener('click', () => { document.querySelectorAll('.mm-node').forEach(n => setNode(n, false)); drawMap(); });
+window.addEventListener('resize', drawMap);
+window.addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h)) showTab(h); });
+
 $('valTable').innerHTML = `<thead><tr><th>工具</th><th>用途</th><th>驗證狀態</th><th>說明</th></tr></thead><tbody>${VALID.map(v => `<tr><td><b>${esc(v[0])}</b></td><td class="small">${esc(v[1])}</td><td><span class="pill ${/^已驗證|客觀/.test(v[2]) ? 'go' : /未驗證/.test(v[2]) ? 'stop' : 'warn'}">${esc(v[2])}</span></td><td class="small">${esc(v[3])}</td></tr>`).join('')}</tbody>`;
 $('refList').innerHTML = REFS.map(r => `<li>${esc(r[0])} <a href="${r[1]}" target="_blank" rel="noopener">連結</a></li>`).join('');
 
-renderSheet(); renderCases(); renderVals(); renderAll();
-(() => { let t = 'ws'; try { t = localStorage.getItem(LS + '-tab') || 'ws'; } catch (e) {} showTab(TABS.includes(t) ? t : 'ws'); })();
+renderSheet(); renderCases(); renderDemos(); renderExam(); renderVals(); renderAll();
+(() => { let t = location.hash.slice(1); if (!TABS.includes(t)) { try { t = localStorage.getItem(LS + '-tab') || 'ws'; } catch (e) { t = 'ws'; } } showTab(TABS.includes(t) ? t : 'ws'); })();
 document.querySelectorAll('#sheet details.layer').forEach((dt, i) => { if (i < 2) dt.open = true; });
 </script>
 </body>

@@ -328,5 +328,99 @@ t('summary contains stage, prognosis, options, decision', () => {
   ['2026-10-09', '84 歲', 'eGFR 9', '預後不良', 'RPA', 'KPS 30', 'Charlson 11', '理解確認：1/10', '病人選擇：腎臟保守治療（不透析）', 'SURE：3/4（有決策衝突）', '綜合建議：依病人選擇「腎臟保守治療（不透析）」', '已完成 1/8'].forEach(k => assert.ok(s.includes(k), k));
 });
 
+console.log('Preparation threshold');
+t('kidney card states the same eGFR and KFRE thresholds the timing rule uses', () => {
+  const why = ev({ age: 60, stage: 'ckd', cap: 'yes' }).asks.find(a => a.key === 'kidney').why;
+  assert.ok(why.includes(`eGFR <${E.TH.egfrPrep}`) && why.includes(`KFRE 2 年 >${E.TH.kfrePrep}%`), why);
+  const c = egfr => ev({ age: 60, stage: 'ckd', cap: 'yes', egfr, sx: 'none' }).timing.c;
+  assert.deepEqual([c(19), c(20)], ['warn', 'info']);
+});
+
+console.log('Teaching tabs');
+const tm = html.match(/\/\*TEACH-START\*\/([\s\S]*?)\/\*TEACH-END\*\//);
+if (!tm) throw new Error('teach block not found');
+const T = new Function(tm[1] + '\nreturn TEACH;')();
+T.DEMO.forEach(c => t(`demo ${c.id} (${c.title}) matches the engine`, () => {
+  const r = ev(c.s), x = c.expect;
+  assert.equal(r.P.level, x.level);
+  assert.equal(r.P.rpa, x.rpa);
+  assert.equal(r.rec.status, x.status);
+  assert.equal(r.rec.primary.id, x.primary);
+  if (x.ready !== undefined) assert.equal(r.rec.ready, x.ready);
+  if (x.sureYes !== undefined) assert.equal(r.rec.sure.yes, x.sureYes);
+  if (x.timing) assert.equal(r.timing.c, x.timing);
+  if (x.fitTop) assert.equal(r.fit.rows[0].id, x.fitTop);
+  if (x.bridge) assert.equal(r.rec.bridge.id, x.bridge);
+  if (x.noRein) assert.equal(r.d.reinApplies, false);
+  if (x.note) assert.ok(r.rec.notes.some(n => n.includes(x.note)), 'note: ' + x.note);
+  if (x.cci) assert.equal(r.d.cci.total, x.cci);
+  if (x.rein) assert.deepEqual([r.d.rein.score, r.d.rein.mort6], x.rein);
+  if (x.optNote) assert.ok(opt(r, x.optNote[0]).why.some(w => w.includes(x.optNote[1])));
+  if (x.plan) assert.equal(r.plan[0].id, x.plan);
+  if (x.acp) assert.ok(r.acp.some(i => i.x.includes(x.acp)));
+  assert.ok(c.reason.length && c.next.length && c.pit && c.cite && c.ask);
+}));
+t('demo d1: the values gap quoted in exam (HD 13% vs PD 82%) is what the engine computes', () => {
+  const f = ev(T.DEMO[0].s).fit.rows;
+  assert.equal(f.find(x => x.id === 'hd').score, 13);
+  assert.equal(f.find(x => x.id === 'pd').score, 82);
+});
+t('demo d3: Charlson 7 and no RPA criterion, as the text says', () => assert.deepEqual(ev(T.DEMO[2].s).P.crit, []));
+t('exam: 20 questions, 10 basic + 10 advanced, unique stems', () => {
+  assert.equal(T.EXAM.length, 20);
+  assert.equal(T.EXAM.filter(x => x.lv === 'basic').length, 10);
+  assert.equal(T.EXAM.filter(x => x.lv === 'adv').length, 10);
+  assert.equal(new Set(T.EXAM.map(x => x.q)).size, 20);
+});
+t('exam: four options each, answers spread A–D 5 each', () => {
+  T.EXAM.forEach(x => { assert.equal(x.o.length, 4); assert.equal(new Set(x.o).size, 4); assert.ok(x.e && x.s); });
+  [0, 1, 2, 3].forEach(i => assert.equal(T.EXAM.filter(x => x.a === i).length, 5, 'option ' + i));
+});
+t('exam: correct option is not a giveaway by length', () => {
+  const longest = T.EXAM.filter(x => x.o[x.a].length === Math.max(...x.o.map(o => o.length))).length;
+  assert.ok(longest <= 6, `correct option is longest in ${longest}/20`);
+});
+const examQ = s => T.EXAM.find(x => x.q.includes(s));
+t('exam: Charlson question agrees with the engine', () => {
+  const x = examQ('修正版 Charlson 是幾分');
+  const r = ev({ age: 76, stage: 'ckd', ccDm: true, ccChf: true, ccPvd: true, dem: 'none' });
+  assert.equal(x.o[x.a], `${r.d.cci.total} 分`);
+});
+t('exam: RPA question agrees with the engine, only the keyed patient qualifies', () => {
+  const x = examQ('符合 RPA 第 6 項建議');
+  const P = [
+    { age: 74, sq: 'no', kps: '30', alb: 2.2, ccMi: true },
+    { age: 76, sq: 'no', kps: '60', alb: 3.6, ccMi: true },
+    { age: 82, sq: 'yes', kps: '70', alb: 3.8, ccMi: true },
+    { age: 77, sq: 'yes', kps: '30', alb: 2.4, ccMi: true }
+  ].map(s => ev({ stage: 'ckd', cap: 'yes', dem: 'none', ...s }));
+  [6, 6, 7, 6].forEach((c, i) => assert.equal(P[i].d.cci.total, c, 'Charlson in option ' + i));
+  assert.deepEqual(P.map(r => r.P.rpa), [false, false, false, true]);
+  assert.equal(x.a, 3);
+  assert.equal(P[0].P.level, 'poor');
+});
+t('exam: PD question agrees with the engine', () => {
+  const x = examQ('腹膜透析判定為');
+  const st = s => opt(ev({ age: 60, stage: 'ckd', cap: 'yes', self: 'self', home: 'ok', ...s }), 'pd').st;
+  assert.deepEqual([st({ aSurg: true }), st({ aOstomy: true }), st({ self: 'helper' }), st({ aHernia: true })], ['eval', 'eval', 'eval', 'no']);
+  assert.equal(x.a, 3);
+});
+t('exam: KFRE, ACP coverage and RPA thresholds agree with the engine', () => {
+  assert.equal(examQ('KFRE 2 年風險').o[examQ('KFRE 2 年風險').a], `>${E.TH.kfrePrep}%`);
+  const acpx = a => ev({ age: a, stage: 'hd', cap: 'yes', acp: 'none' }).acp.find(i => i.t.includes('諮商')).x.includes('65 歲以上透析病人');
+  assert.deepEqual([acpx(58), acpx(70)], [false, true]);
+  assert.equal(E.TH.rpaAge, 75); assert.equal(E.TH.rpaKps, 40); assert.equal(E.TH.rpaAlb, 2.5); assert.equal(E.TH.cciHigh, 8);
+});
+t('map: both sides filled, every leaf has text and a source tag', () => {
+  [T.MAP.left, T.MAP.right].forEach(side => {
+    assert.equal(side.length, 6);
+    side.forEach(([b, leaves]) => { assert.ok(b && leaves.length >= 3); leaves.forEach(([x, s]) => assert.ok(x && s)); });
+  });
+});
+t('page: teaching tabs are wired', () => {
+  ['tab-exam', 'id="exam"', 'tab-map', 'id="map"', 'id="demoList"', 'id="examList"', 'id="mm"'].forEach(k => assert.ok(html.includes(k), k));
+  assert.ok(html.includes("'cases', 'exam', 'map', 'ref'"));
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
