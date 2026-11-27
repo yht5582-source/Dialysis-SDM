@@ -547,7 +547,7 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
               <ul>
                 <li><span class="nd" data-n="pre-ok"><b>預後尚可</b><small>介紹全部選項：HD、PD、HHD、移植（先發性）、保守治療 → 價值澄清 → 決定 → 準備通路</small></span></li>
                 <li><span class="nd" data-n="pre-poor"><b>預後不良</b><small>保守治療應被充分討論；不確定時用限時嘗試透析</small></span>
-                  <ul><li><span class="nd" data-n="rpa"><b>≥75 歲且 ≥2 項預後不良指標</b><small>RPA：可考慮不透析</small></span></li></ul>
+                  <ul><li><span class="nd" data-n="rpa"><b>≥75 歲且 ≥2 項預後不良指標</b><small>RPA：可考慮不透析；不據此排除移植，資格由移植團隊評估</small></span></li></ul>
                 </li>
               </ul>
             </li>
@@ -838,11 +838,11 @@ function timing(s, d, P) {
     c = 'warn'; t = `已進入準備期（eGFR <${TH.egfrPrep} 或 KFRE 2 年 >${TH.kfrePrep}%）：建議盡快完成選擇`;
     x.push('選血液透析：動靜脈瘻管需要數個月成熟，宜及早建立。');
     x.push('選腹膜透析：開始前約 2–4 週放置腹膜透析導管。');
-    if (!P.rpa && !s.tNo) x.push('考慮移植：同時轉介移植評估，有活體捐贈者可爭取先發性移植。');
+    if (!s.tNo) x.push('有意了解移植：可與腎臟科討論轉介移植團隊；同步評估透析銜接，不因等待移植延誤必要治療。');
     if (P.level === 'poor' || s.choice === 'ckm') x.push('選保守治療：照會安寧共同照護，訂好症狀處理、飲食與照顧計畫。');
   } else if (d.egfr !== null || d.kfre !== null) {
     t = '尚有時間：先認識各種選擇，與家人討論';
-    if (d.egfr !== null && d.egfr < TH.txRefer && !P.rpa && !s.tNo) x.push(`eGFR <${TH.txRefer}：可轉介移植評估（KDIGO 2020）。`);
+    if (d.egfr !== null && d.egfr < TH.txRefer && !s.tNo) x.push(`eGFR <${TH.txRefer} 且預期進展至腎衰竭：可與腎臟科討論轉介移植評估（KDIGO 2020）。`);
     if (d.kfre !== null && d.kfre > TH.kfreRefer) x.push(`KFRE 2 年風險 ${d.kfre}% >${TH.kfreRefer}%：建議納入多專業腎臟團隊（衛教師、營養師、社工）照護（KDIGO 2024 PP 2.2.2）。`);
   } else return null;
   return { c, t, x };
@@ -896,11 +896,10 @@ function options(s, d, P) {
   {
     const w = []; let st = 'ok';
     if (s.tNo) { st = 'no'; w.push('病人不考慮移植'); }
-    else if (P.rpa) { st = 'no'; w.push('預期餘命有限：手術與抗排斥藥物的風險大於好處'); }
     else {
       if (d.txCI.length) { st = 'eval'; w.push('目前有移植障礙：' + d.txCI.map(c => F[c].l).join('、') + '；問題解決後可再評估'); }
       if (d.cancer) { st = 'eval'; w.push('近 5 年內惡性腫瘤：依癌別需治療完成並觀察一段時間'); }
-      if (poor && st === 'ok') { st = 'eval'; w.push('預後指標不佳：需移植團隊評估'); }
+      if (P.rpa || poor) { st = 'eval'; w.push('有預後不利因素，需由移植團隊綜合評估共病、衰弱及手術風險；RPA 透析預後條件不等於移植禁忌'); }
       if (d.age !== null && d.age >= 70 && st === 'ok') w.push('年齡本身不是禁忌，但需完整心肺評估');
       if (s.donor === 'yes') w.push(d.pre ? '有活體捐贈者：可爭取先發性移植（不必先透析）' : '有活體捐贈者：等待時間短、效果最好');
       else if (s.donor === 'maybe') w.push('可先與家人談活體捐贈的可能');
@@ -980,7 +979,7 @@ function asks(s, d, P) {
   need('prog', '健康狀況與預後', '預後決定透析能帶來多少好處。RPA 指引的四項指標：意外問題、Charlson 共病、KPS、白蛋白；年長且 ≥2 項不良者，保守治療應該被充分討論。', ['sq', 'kps', 'dem', 'alb'], filled(s, 'sq') && filled(s, 'kps') && filled(s, 'dem'));
   need('comorb', 'Charlson 共病指數', `勾選所有病史，系統自動加上腎臟病 2 分與年齡分數；≥${TH.cciHigh} 分屬 RPA 的「高共病負擔」，也影響移植評估。`, [...COMORB, 'nh', 'cNone'], anyChk(s, COMORB, 'cNone'));
   if (d.reinApplies) need('rein', 'REIN 分數（≥75 歲，準備開始透析）', '已驗證的工具：估計若開始透析，6 個月內的死亡率（法國 REIN 登錄，c 統計量 0.70）。', [...REIN, 'rNone'], REIN.some(k => s[k]) || !!s.rNone, { pri: 'later' });
-  if (!P.rpa) need('txc', '腎臟移植的可行性', '年齡本身不是禁忌；這些情況需先處理。有活體捐贈者可大幅縮短等待。', [...TXCI, 'tNo', 'tNone', 'donor'], anyChk(s, [...TXCI, 'tNo'], 'tNone') && (filled(s, 'donor') || !!s.tNo));
+  need('txc', '腎臟移植的可行性', '年齡本身不是禁忌；這些情況需先處理。有活體捐贈者可大幅縮短等待。', [...TXCI, 'tNo', 'tNone', 'donor'], anyChk(s, [...TXCI, 'tNo'], 'tNone') && (filled(s, 'donor') || !!s.tNo));
   need('homec', '居家治療條件', '腹膜透析與居家血液透析需要可用的腹腔、操作能力或協助者，以及合適的居家空間。', [...ABD, 'aNone', 'self', 'home', 'far', 'work'], anyChk(s, ABD, 'aNone') && filled(s, 'self') && filled(s, 'home'));
   const vt = Object.values(s._v || {}).some(x => num(x));
   need('vals', '病人在意什麼', '請病人（與家人）在「價值澄清」分頁標出各項的重要程度，系統會對照各選項的特性。', [], vt, { link: 'vals' });
@@ -999,7 +998,7 @@ function path(s, d, P, Q, rec, plan) {
     { t: '確認階段與決策能力', done: filled(s, 'stage') && filled(s, 'cap') },
     { t: '腎功能與急迫性', done: !d.pre || (filled(s, 'egfr') && filled(s, 'sx')), skip: !!s.stage && !d.pre },
     { t: '預後評估', done: P.known && anyChk(s, COMORB, 'cNone'), x: P.level ? { good: '預後指標無明顯不利', guarded: '有預後不利因素', poor: '預後不良' }[P.level] : '' },
-    { t: '移植與居家治療可行性', done: (P.rpa || anyChk(s, [...TXCI, 'tNo'], 'tNone')) && anyChk(s, ABD, 'aNone') && filled(s, 'self') },
+    { t: '移植與居家治療可行性', done: anyChk(s, [...TXCI, 'tNo'], 'tNone') && anyChk(s, ABD, 'aNone') && filled(s, 'self') },
     { t: '價值澄清', done: vt },
     { t: '理解確認', done: Q.answered >= Q.n, x: Q.answered ? `${Q.right}/${Q.n} 題正確` : '' },
     { t: '預立醫療照護計畫', done: filled(s, 'dnr') && filled(s, 'acp') && filled(s, 'agent') },
@@ -1146,7 +1145,7 @@ function recommend(s, d, P, O, Fz) {
       r.status = 'conflict';
       // keep the alternative in the same family: a different dialysis modality for a dialysis choice
       r.primary = (DIAL.includes(o.id) && bestDial()) || rank[0] || null;
-      r.notes.push(`病人選擇「${o.t}」，但目前醫療上不建議：${o.why.join('；')}。`);
+      r.notes.push(o.id === 'tx' && s.tNo ? '移植偏好紀錄不一致：先與病人確認目前是否願意了解移植。' : `病人選擇「${o.t}」，但目前醫療上不建議：${o.why.join('；')}。`);
       if (r.primary) r.notes.push(`${DIAL.includes(o.id) ? '可行的透析方式中' : '可行選項中'}最符合病人價值的是「${r.primary.t}」。請再與病人和家屬討論，必要時尋求第二意見。`);
     } else {
       r.status = o.st === 'ok' ? 'ok' : 'eval';
@@ -1163,7 +1162,7 @@ function recommend(s, d, P, O, Fz) {
   const p = r.primary;
   if (p && (p.id === 'tx' || p.id === 'ttl')) {
     r.bridge = bestDial();
-    if (p.id === 'tx' && d.pre && s.donor === 'yes') r.notes.push('有活體捐贈者且尚未透析：以先發性移植為目標；若來不及，再以銜接模式開始透析。');
+    if (p.id === 'tx' && d.pre && s.donor === 'yes') r.notes.push('有潛在活體捐贈者：如移植團隊確認雙方適合，可討論先發性移植；仍須預先規劃透析銜接。');
   }
   if (p && DIAL.includes(p.id) && P.level === 'poor') r.notes.push('預後不良：建議以「限時嘗試」的方式開始，約定目標與檢視日期。');
   if (r.sure.done && r.sure.yes < 4) { r.ready = false; r.notes.push(`SURE ${r.sure.yes}/4：有決策衝突，建議不要今天定案，針對回答「否」的項目再約一次討論。`); }
@@ -1177,9 +1176,9 @@ function pathway(s, d, rec) {
   if (rec.bridge) ids.push(rec.bridge.id);
   const done = s._st || {};
   return ids.map((id, i) => {
-    const steps = PATHS[id].filter(x => (!x.pre || d.pre) && (!x.donor || s.donor === 'yes' || s.donor === 'maybe'))
+    const steps = PATHS[id].filter(x => (id !== 'tx' || rec.primary.st !== 'eval' || ['ref', 'work', 'donor', 'bridge'].includes(x.id)) && (!x.pre || d.pre) && (!x.donor || s.donor === 'yes' || s.donor === 'maybe'))
       .map(x => ({ key: `${id}.${x.id}`, t: x.t, done: done[`${id}.${x.id}`] || null }));
-    return { id, t: id === 'cont' ? '維持目前透析' : OPT[id].t, role: i ? '銜接模式' : '主要路徑', steps, n: steps.filter(x => x.done).length };
+    return { id, t: id === 'cont' ? '維持目前透析' : id === 'tx' && rec.primary.st === 'eval' ? '腎臟移植：待團隊評估' : OPT[id].t, role: i ? '銜接模式' : '主要路徑', steps, n: steps.filter(x => x.done).length };
   });
 }
 
