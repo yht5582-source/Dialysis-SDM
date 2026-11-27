@@ -304,6 +304,7 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
   <header class="masthead">
     <div class="eyebrow">Kidney failure · shared decision-making, conservative care &amp; advance care planning</div>
     <h1>末期腎臟病共享決策</h1>
+    <p class="small muted">決策安全修訂 · 2026-11-27</p>
     <p class="sub">給腎臟科團隊和病人、家屬一起使用。先確認病人在哪個階段、預後如何，再逐一檢視院內血液透析、腹膜透析、居家血液透析、腎臟移植、腎臟保守治療與停止透析各自是否可行；接著請病人標出自己在意的事、確認理解並記錄選擇，系統結合醫療可行性與病人價值提出綜合建議，導引到該模式的執行路徑；同時規劃預立醫療照護諮商（ACP）、預立醫療決定（AD）與 DNR。預後使用意外問題、KPS、修正版 Charlson 與 REIN 等已驗證工具，決策準備度用 SURE 測驗；SDM 成效以決策衝突量表、決策準備量表與決策後悔量表評估。最後可以一鍵複製 SDM 紀錄貼到病歷。</p>
     <div class="src"><span>KDIGO CKD 2024</span><span>KDIGO 移植候選人 2020</span><span>RPA 透析開始與停止 SDM 指引 2010</span><span>KDIGO 腎臟支持照護共識 2015</span><span>病人自主權利法</span><span>安寧緩和醫療條例</span><span>健保 PD 推動計畫（114.05.21）</span><span>台灣腎病年報（2022 年資料）</span></div>
   </header>
@@ -489,7 +490,7 @@ ol.path li .pl{color:var(--ink-3);font-size:12.5px}
         <div class="card">
           <h3>綜合建議 <span class="pill mute" id="recTag"></span></h3>
           <div id="recBox"></div>
-          <p class="small muted" style="margin-top:10px">建議的順序：先排除醫療上不建議的選項，再看病人的選擇；病人還沒決定時，以價值契合度排序（「需評估」的選項打 0.85 折）。系統不會推翻病人在可行範圍內的選擇。</p>
+          <p class="small muted" style="margin-top:10px">建議的順序：先排除醫療上不建議的選項，再看病人的選擇；病人還沒決定時，以價值契合度排序（「需評估」的選項打 0.85 折）。停止透析僅列為討論選項，不參與排序；SURE 不代表醫療適合性或正式同意。</p>
         </div>
         <div class="card">
           <h3>病人的選擇與 SURE 決策準備度</h3>
@@ -919,7 +920,7 @@ function options(s, d, P) {
   if (d.onDial) {
     const w = ['可以討論的醫療決定：確認決策能力、排除可治療的憂鬱或可逆原因、家庭會議、照會安寧'];
     if (poor) w.push('預後不良：應主動討論');
-    add('wd', 'ok', w, { pref: poor });
+    add('wd', 'eval', w);
     if (P.level && P.level !== 'good') add('ttl', 'ok', ['也可約定期限與目標（例如住院後功能是否恢復），到期再一起檢視是否繼續'], {});
   }
   return O;
@@ -931,9 +932,8 @@ function fit(s, P, O) {
   const tot = VALS.reduce((a, [k]) => a + (num(v[k]) || 0), 0);
   if (!tot) return null;
   const avail = O.filter(o => FIT[o.id] && o.st !== 'no').map(o => o.id);
-  if (O.some(o => o.id === 'wd' && o.st !== 'no')) avail.push('wd');
   const rows = avail.map(id => {
-    const A = Object.assign({}, FIT[id === 'wd' ? 'ckm' : id]);
+    const A = Object.assign({}, FIT[id]);
     if (P.level === 'poor' && ['hd', 'pd', 'hhd'].includes(id)) A.life = 0.8;  // survival gain shrinks with poor prognosis
     const sc = VALS.reduce((a, [k]) => a + (num(v[k]) || 0) * A[k] / 2, 0) / tot * 100;
     return { id, t: OPT[id].t, score: Math.round(sc) };
@@ -1107,11 +1107,11 @@ function sureScore(s) {
   return { answered: a.length, yes: a.filter(k => s[k] === 'y').length, done: a.length === SURE.length };
 }
 function recommend(s, d, P, O, Fz) {
-  const r = { status: null, primary: null, bridge: null, alt: null, notes: [], sure: sureScore(s) };
+  const r = { status: null, primary: null, bridge: null, alt: null, ready: false, notes: [], sure: sureScore(s) };
   if (!O.length) return r;
   const score = id => { const f = Fz && Fz.rows.find(x => x.id === id); return f ? f.score : null; };
   const W = { ok: 1, eval: 0.85 };
-  const rank = O.filter(o => o.st !== 'no' && (FIT[o.id] || o.id === 'wd'))
+  const rank = O.filter(o => o.st !== 'no' && o.id !== 'wd' && FIT[o.id])
     .map(o => ({ o, v: (score(o.id) === null ? 50 : score(o.id)) * W[o.st] }))
     .sort((a, b) => b.v - a.v).map(x => x.o);
   const bestDial = () => {
@@ -1121,8 +1121,11 @@ function recommend(s, d, P, O, Fz) {
   };
   let c = s.choice;
   if (c === 'cont') c = s.stage === 'hd' ? 'hd' : s.stage === 'pd' ? 'pd' : null;
-  if (c === 'ckm' && d.onDial) c = 'wd';
-  if (c === 'wd' && !d.onDial) c = 'ckm';
+  if ((c === 'ckm' && d.onDial) || (c === 'wd' && !d.onDial)) {
+    r.status = 'need';
+    r.notes.push('所選項目不適用於目前透析階段，請與病人確認原意。是否開始透析與是否停止既有透析是不同決定。');
+    return r;
+  }
   const top = Fz ? rank[0] : null;
 
   if (!c || c === 'undecided') {
@@ -1133,6 +1136,12 @@ function recommend(s, d, P, O, Fz) {
     let o = O.find(x => x.id === c);
     if (!o && c === 'ttl') o = { id: 'ttl', t: OPT.ttl.t, st: 'ok', why: ['預後尚可時較少需要限時嘗試，但仍可依病人意願採用'] };
     if (!o) { r.status = 'need'; return r; }
+    if (o.id === 'wd') {
+      r.status = 'eval';
+      r.primary = o;
+      r.notes.push('僅記錄為待討論事項，不是停止透析的建議或醫囑。由醫療團隊另行確認病人意願、決策能力及適用程序；SURE 分數不能取代這些確認。');
+      return r;
+    }
     if (o.st === 'no') {
       r.status = 'conflict';
       // keep the alternative in the same family: a different dialysis modality for a dialysis choice
@@ -1158,11 +1167,11 @@ function recommend(s, d, P, O, Fz) {
   }
   if (p && DIAL.includes(p.id) && P.level === 'poor') r.notes.push('預後不良：建議以「限時嘗試」的方式開始，約定目標與檢視日期。');
   if (r.sure.done && r.sure.yes < 4) { r.ready = false; r.notes.push(`SURE ${r.sure.yes}/4：有決策衝突，建議不要今天定案，針對回答「否」的項目再約一次討論。`); }
-  else r.ready = r.sure.done && ['ok', 'eval'].includes(r.status);
+  else r.ready = r.sure.done && r.sure.yes === SURE.length && r.status === 'ok' && ['yes', 'help'].includes(s.cap);
   return r;
 }
 function pathway(s, d, rec) {
-  if (!rec.primary || !['ok', 'eval', 'suggest', 'conflict'].includes(rec.status)) return [];
+  if (!rec.primary || rec.primary.id === 'wd' || !['ok', 'eval', 'suggest', 'conflict'].includes(rec.status)) return [];
   const isCont = s.choice === 'cont' || (rec.primary.cur && d.onDial);
   const ids = [isCont ? 'cont' : rec.primary.id];
   if (rec.bridge) ids.push(rec.bridge.id);
@@ -1276,7 +1285,8 @@ function summary(s, date) {
   if (ac.length) L.push('預立醫療：' + ac.join('；'));
   if (s.choice) L.push(`病人選擇：${LAB('choice', s.choice)}${s.when ? '；' + LAB('when', s.when) : ''}`);
   if (R.rec.sure.done) L.push(`SURE：${R.rec.sure.yes}/4${R.rec.sure.yes < 4 ? '（有決策衝突）' : ''}`);
-  if (R.rec.primary) L.push(`綜合建議：${{ ok: '依病人選擇', eval: '依病人選擇，待評估', suggest: '建議（待病人確認）', conflict: '病人選擇不建議，替代為' }[R.rec.status]}「${R.rec.primary.t}」${R.rec.bridge ? `；銜接「${R.rec.bridge.t}」` : ''}${R.rec.alt ? `；備案「${R.rec.alt.t}」` : ''}`);
+  if (R.rec.primary?.id === 'wd') L.push('病人提出討論停止透析；待醫療團隊評估，非治療建議或定案。');
+  else if (R.rec.primary) L.push(`綜合建議：${{ ok: '依病人選擇', eval: '依病人選擇，待評估', suggest: '建議（待病人確認）', conflict: '病人選擇不建議，替代為' }[R.rec.status]}「${R.rec.primary.t}」${R.rec.bridge ? `；銜接「${R.rec.bridge.t}」` : ''}${R.rec.alt ? `；備案「${R.rec.alt.t}」` : ''}`);
   R.plan.forEach(p => { const left = p.steps.filter(x => !x.done).map(x => x.t.split('：')[0]); L.push(`${p.role}（${p.t}）：已完成 ${p.n}/${p.steps.length}${left.length ? '；待辦：' + left.join('、') : ''}`); });
   const OC = outcomes(s), oc = [];
   if (OC.dcsPre.total !== null) oc.push(`DCS 討論前 ${OC.dcsPre.total}`);
@@ -1604,11 +1614,11 @@ function recHTML(full) {
   if (!r.status) return '<p class="small muted">先在「引導評估」填寫目前階段。</p>';
   const st = RECST[r.status];
   let h = '';
-  if (r.primary) h += `<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px"><span class="recp">${esc(r.primary.t)}</span><span class="pill ${st[0]}">${st[1]}</span>${r.ready ? '<span class="pill go">可定案</span>' : ''}</div>`;
+  if (r.primary) h += `<div style="display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px"><span class="recp">${esc(r.primary.t)}</span><span class="pill ${st[0]}">${st[1]}</span>${r.ready ? '<span class="pill go">SURE 無決策衝突訊號</span>' : ''}</div>`;
   if (r.bridge) h += `<p class="small">銜接模式：<b>${esc(r.bridge.t)}</b></p>`;
   if (r.alt) h += `<p class="small">備案：<b>${esc(r.alt.t)}</b></p>`;
   h += r.notes.map(n => `<p class="small muted" style="margin-top:4px">• ${esc(n)}</p>`).join('');
-  if (!full && r.primary) h += `<div style="margin-top:8px"><button class="btn sm primary" type="button" data-go="plan">看執行路徑</button></div>`;
+  if (!full && R.plan.length) h += `<div style="margin-top:8px"><button class="btn sm primary" type="button" data-go="plan">看執行路徑</button></div>`;
   return h;
 }
 function renderPlan() {
@@ -1620,7 +1630,9 @@ function renderPlan() {
   const P = R.plan;
   $('planTag').textContent = P.length ? P.map(p => `${p.n}/${p.steps.length}`).join(' · ') : '尚未產生';
   $('planBox').innerHTML = P.length ? P.map(p => `<div class="pw"><h4><span>${esc(p.role)}：${esc(p.t)}</span><span class="mono small">${p.n}/${p.steps.length}</span></h4>${p.steps.map(x => `<label class="step ${x.done ? 'done' : ''}"><input type="checkbox" data-step="${x.key}" ${x.done ? 'checked' : ''}><span class="tx">${esc(x.t)}</span><span class="dt">${x.done ? new Date(x.done).toLocaleDateString('zh-TW') : ''}</span></label>`).join('')}</div>`).join('')
-    : '<p class="small muted">記錄病人的選擇（或完成價值澄清）後，這裡會列出該模式的準備步驟。</p>';
+    : R.rec.primary?.id === 'wd'
+      ? '<p class="small muted">停止透析僅供醫病團隊討論，本工具不產生停止透析的執行路徑。</p>'
+      : '<p class="small muted">記錄病人的選擇（或完成價值澄清）後，這裡會列出該模式的準備步驟。</p>';
 }
 
 function renderOut(rebuild) {
@@ -1738,6 +1750,7 @@ function labelOf(id, v) {
   return v === '' ? '清除' : v + (f.u ? ' ' + f.u : '');
 }
 function setField(id, el) {
+  const previousChoice = S.choice;
   const f = SDM.F[id];
   let v;
   if (f.t === 'chk') v = el.checked;
@@ -1749,7 +1762,10 @@ function setField(id, el) {
     if (NONE[id]) NONE[id].filter(x => x !== 'nh').forEach(x => S[x] = false);
     Object.entries(NONE).forEach(([n, list]) => { if (list.includes(id) && id !== 'nh') S[n] = false; });
   }
-  if (id === 'choice') S._decT = v && v !== 'undecided' ? (S._decT || Date.now()) : undefined;
+  if (id === 'choice') {
+    if (previousChoice !== v) SDM.SURE.forEach(k => delete S[k]);
+    S._decT = v && v !== 'undecided' ? (previousChoice === v ? (S._decT || Date.now()) : Date.now()) : undefined;
+  }
   log(`${f.l.split('（')[0].split('：')[0]}：${labelOf(id, v)}`);
   setTimeout(renderAll, 0); // let focus land on the next field first
 }
